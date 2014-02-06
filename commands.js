@@ -6,6 +6,10 @@ var strpad = function(str, len) {
   return str + Array(len + 1 - str.length).join(" ");
 };
 
+var bold = function(str) {
+  return "\x02" + str + "\x02";
+};
+
 module.exports = function(get, chanName) {
   return {
     "reloadcmds": {
@@ -41,7 +45,7 @@ module.exports = function(get, chanName) {
           standings = team[2].team_standings;
           name = (nicks) ? this.teamData[info[0].team_key].owner[0] : this.teamData[info[0].team_key].name;
           s = [
-                "\x02" + (i + 1) + ".\x02",
+                bold((i + 1) + "."),
                 strpad(name, 20),
                 strpad(standings.outcome_totals.wins, 3),
                 strpad(standings.outcome_totals.losses, 3),
@@ -141,11 +145,11 @@ module.exports = function(get, chanName) {
           name1 = (nicks) ? this.teamData[team1[0][0].team_key].owner[0] : this.teamData[team1[0][0].team_key].name;
           name2 = (nicks) ? this.teamData[team2[0][0].team_key].owner[0] : this.teamData[team2[0][0].team_key].name;
           if(pts1 > pts2) {
-            name1 = "\x02" + name1 + "\x02";
-            pts1 = "\x02" + pts1 + "\x02";
+            name1 = bold(name1);
+            pts1 = bold(pts1);
           } else {
-            name2 = "\x02" + name2 + "\x02";
-            pts2 = "\x02" + pts2 + "\x02";
+            name2 = bold(name2);
+            pts2 = bold(pts2);
           }
           results.push(name1 + " " + pts1 + " - " + pts2 + " " + name2);
         }
