@@ -9,12 +9,12 @@ var OAUTH = require('./oauth.json');
 
 var Bot = {};
 
-var chanName = "#doubleaw";
+var chanName = "#reddit-hockey";
 
 var config = {
   channels: [chanName],
   server: "irc.freenode.net",
-  botName: "MCDangerbutter"
+  botName: "rfstats"
 };
 
 var teamData, statIds;
@@ -313,7 +313,12 @@ var commands = {
     fn: function(data, nick) {
       bot.say(chanName, "Go fuck yourself dan.");
     }
-  }
+  },
+  "dan": {
+    fn: function(data, nick) {
+      bot.say(chanName, "Hey " + nick + " wanna suck me off?");
+    }
+  },
 };
 
 bot.addListener('message' + chanName, function(nick, text, message) {
@@ -330,9 +335,9 @@ bot.addListener('message' + chanName, function(nick, text, message) {
       get(commands[cmd].url, commands[cmd].fn, msg.slice(1), message.nick);
     } else {
       commands[cmd].fn(msg.slice(1), message.nick);
-      if(message.nick === "ruhan" && Math.random() < 0.9) {
-        bot.say(chanName, "And no, you can't have the Blackhawks' fourth line.");
-      }
+    }
+    if(message.nick === "ruhan" && Math.random() < 0.8) {
+      bot.say(chanName, "And no, you can't have the Blackhawks' fourth line.");
     }
   }
 });
