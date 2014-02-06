@@ -134,8 +134,9 @@ function strpad(str, len) {
 }
 
 function getTeam(data) {
+  var specNick = (data.length === 0) ? '' : data[0].toLowerCase();
   return Object.keys(teamData).map(function(k){
-    return [k, teamData[k]]
+    return [k, teamData[k]];
   }).filter(function(i){
     return i[1].name === data.join(" ") || i[1].owner.indexOf(specNick) > -1
   })[0];
@@ -221,7 +222,6 @@ var commands = {
       if(!teamData || !statIds) {
         return;
       }
-      var specNick = (data.length === 0) ? '' : data[0].toLowerCase();
       var team = getTeam(data);
       if(!team) {
         bot.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
@@ -239,7 +239,40 @@ var commands = {
         }, data, nick);
       }
     }
-  }
+  },
+  "starters": {
+    fn: function(data, nick) {
+      if(!teamData || !statIds) {
+        return;
+      }
+      var team = getTeam(data);
+      if(!team) {
+        bot.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
+      } else {
+        var key = team[0];
+        get('http://fantasysports.yahooapis.com/fantasy/v2/team/' + key + '/roster', function(data, cmdData, nick) {
+          var players = data.team[1].roster[0].players,
+              info, position;
+          var positions = {};
+          for(var i = 0; i < players.count; i++) {
+            info = players[i].player[0];
+            position = players[i].player[1].selected_position[1].position;
+            if(!positions[position]) {
+              positions[position] = [];
+            }
+            positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
+          }
+          var spots = Object.keys(positions).filter(function(pos){
+            return ['BN','IR','IR+'].indexOf(pos) < 0;
+          }).map(function(pos){
+            return pos + ": " + positions[pos].join(", ");
+          });
+          spots.unshift(team[1].name);
+          bot.say(chanName, spots.join(" | "));
+        }, data, nick);
+      }
+    }
+  },
   "murt": {
     fn: function(data, nick) {
       console.log(nick + " told murt to fuck off");
