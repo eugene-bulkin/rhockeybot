@@ -9,7 +9,9 @@ var OAUTH = require('./oauth.json');
 
 var Bot = {};
 
-var chanName = "#doubleaw";
+var test = false;
+
+var chanName = (test) ? "#doubleaw" : "#reddit-hockey";
 
 var config = {
   channels: [chanName],
