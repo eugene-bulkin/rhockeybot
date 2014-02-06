@@ -169,7 +169,7 @@ module.exports = function(get, chanName) {
     },
     "ruhan": {
       fn: function(data, nick) {
-        this.client.say(chanName, "No, you can't have the Blackhawks' fourth line.");
+        this.client.say(chanName, "No, you can't have the Chicago fourth line.");
       }
     },
     "thero": {
