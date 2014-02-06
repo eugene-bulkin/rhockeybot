@@ -28,6 +28,13 @@ var nick_hash = {
   '321.l.99282.t.6': ['thatoneroadie']
 };
 
+var help = {
+  "fstandings": "Displays the standings for the #reddit-hockey fantasy league.",
+  "fstarters": "Displays the current starting lineup for the specified team.",
+  "fstats": "Displays the season stats for the specified team.",
+  "fhelp": "What do you think that does?"
+};
+
 function get(url, cb, cmdData, nickname) {
   request.get({ url: url + '?format=json', oauth: OAUTH, json: true }, function(e, r, body) {
     if(body.error) {
@@ -270,6 +277,19 @@ var commands = {
           spots.unshift(team[1].name);
           bot.say(chanName, spots.join(" | "));
         }, data, nick);
+      }
+    }
+  },
+  "help": {
+    fn: function(data, nick) {
+      if(data.length === 0) {
+        bot.say(chanName, nick + ": " + "The following commands are available: " + Object.keys(help).join(", "));
+      } else {
+        if(help[data[0]]) {
+          bot.say(chanName, help[data[0]]);
+        } else {
+          bot.say(chanName, nick + ": " + "There is no help available for '" + data[0] + "'.");
+        }
       }
     }
   },
