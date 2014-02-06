@@ -9,7 +9,7 @@ var API = require('./api.json');
 var OAUTH = require('./oauth.json');
 
 // enable this to keep it out of the main channel
-var TESTING = true;
+var TESTING = false;
 
 var channel = (TESTING) ? "#doubleaw" : "#reddit-hockey";
 
@@ -77,11 +77,12 @@ function Bot() {
 
   this.teamData = null;
   this.statIds = null;
-  this.commands = require('./commands').bind(this)(this.get, channel);
+  this.commands = require('./commands').bind(this)(this.get.bind(this), channel);
   console.log(Object.keys(this.commands).length + " commands loaded.");
 }
 
 Bot.prototype.get = function(url, cb, cmdData, nickname) {
+  cb = cb.bind(this);
   request.get({ url: 'http://fantasysports.yahooapis.com/fantasy/v2/' + url + '?format=json', oauth: OAUTH, json: true }, function(e, r, body) {
     if(body.error) {
       console.log(body.error);
@@ -186,7 +187,7 @@ Bot.prototype.onMessage = function(nick, text, message) {
 
 Bot.prototype.reloadCmds = function() {
   delete require.cache[Object.keys(require.cache).filter(function(m){return m.match(/commands\.js/)})[0]];
-  this.commands = require('./commands.js').bind(this)(this.get, channel);
+  this.commands = require('./commands.js').bind(this)(this.get.bind(this), channel);
   console.log(Object.keys(this.commands).length + " commands loaded.");
 };
 

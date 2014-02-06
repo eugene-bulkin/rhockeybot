@@ -88,7 +88,7 @@ module.exports = function(get, chanName) {
         if(!this.teamData || !this.statIds) {
           return;
         }
-        var team = getTeam(data);
+        var team = this.getTeam(data);
         if(!team) {
           this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
         } else {
