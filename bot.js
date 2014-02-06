@@ -1,7 +1,6 @@
 var qs = require('querystring');
 var prompt = require('prompt');
 var request = require('request');
-var open = require("open");
 var irc = require("irc");
 var util = require("util");
 var fs = require("fs");
@@ -76,7 +75,7 @@ function getOAuth() {
       token: access_token.oauth_token,
       token_secret: access_token.oauth_token_secret
     };
-    open(access_token.xoauth_request_auth_url);
+    console.log("Visit " + access_token.xoauth_request_auth_url);
     prompt.start();
     prompt.get(['verifier'], function(err, res) {
       oauth.verifier = res.verifier;
@@ -132,6 +131,14 @@ function strpad(str, len) {
     return str;
   }
   return str + Array(len + 1 - str.length).join(" ");
+}
+
+function getTeam(data) {
+  return Object.keys(teamData).map(function(k){
+    return [k, teamData[k]]
+  }).filter(function(i){
+    return i[1].name === data.join(" ") || i[1].owner.indexOf(specNick) > -1
+  })[0];
 }
 
 var commands = {
@@ -214,11 +221,8 @@ var commands = {
       if(!teamData || !statIds) {
         return;
       }
-      var team = Object.keys(teamData).map(function(k){
-        return [k, teamData[k]]
-      }).filter(function(i){
-        return i[1].name === data.join(" ") || i[1].owner.indexOf(data[0].toLowerCase()) > -1
-      })[0];
+      var specNick = (data.length === 0) ? '' : data[0].toLowerCase();
+      var team = getTeam(data);
       if(!team) {
         bot.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
       } else {
@@ -235,7 +239,7 @@ var commands = {
         }, data, nick);
       }
     }
-  },
+  }
   "murt": {
     fn: function(data, nick) {
       console.log(nick + " told murt to fuck off");
