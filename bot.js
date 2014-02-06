@@ -310,6 +310,9 @@ bot.addListener('message' + chanName, function(nick, text, message) {
       get(commands[cmd].url, commands[cmd].fn, msg.slice(1), message.nick);
     } else {
       commands[cmd].fn(msg.slice(1), message.nick);
+      if(message.nick === "ruhan" && Math.random() < 0.9) {
+        bot.say(chanName, "And no, you can't have the Blackhawks' fourth line.");
+      }
     }
   }
 });
