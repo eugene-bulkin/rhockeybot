@@ -9,7 +9,7 @@ var OAUTH = require('./oauth.json');
 
 var Bot = {};
 
-var chanName = "#reddit-hockey";
+var chanName = "#doubleaw";
 
 var config = {
   channels: [chanName],
@@ -154,63 +154,28 @@ var commands = {
     url: 'http://fantasysports.yahooapis.com/fantasy/v2/league/nhl.l.99282/standings',
     fn: function(data, cmdData, nick) {
       var teams = data.league[1].standings[0].teams,
-          team, info, stats, standings;
+          team, info, stats, standings, name;
       var message = [], s;
+      var nicks = (cmdData[0] === "n");
       message.push([
-          strpad("#", 2),
-          strpad("Name", 20),
-          strpad("W", 3),
-          strpad("L", 3),
-          strpad("T", 3),
-          strpad("%", 4),
-          "Waiver",
-          "Moves"
+          strpad("\x1f#\x1f", 2 + 2),
+          strpad("\x1fName\x1f", 20 + 2),
+          strpad("\x1fW\x1f", 3 + 2),
+          strpad("\x1fL\x1f", 3 + 2),
+          strpad("\x1fT\x1f", 3 + 2),
+          strpad("\x1f%\x1f", 4 + 2),
+          "\x1fWaiver\x1f",
+          "\x1fMoves\x1f"
         ].join(" "));
       for(var i = 0; i < teams.count; i++) {
         team = teams[i].team;
         info = team[0];
         stats = team[1];
         standings = team[2].team_standings;
+        name = (nicks) ? teamData[info[0].team_key].owner[0] : teamData[info[0].team_key].name;
         s = [
               "\x02" + (i + 1) + ".\x02",
-              strpad(info[2].name, 20),
-              strpad(standings.outcome_totals.wins, 3),
-              strpad(standings.outcome_totals.losses, 3),
-              strpad(standings.outcome_totals.ties, 3),
-              strpad(standings.outcome_totals.percentage, 4),
-              strpad(info[7].waiver_priority, 6),
-              strpad(info[9].number_of_moves, 5),
-            ].join(" ");
-        message.push(s);
-      }
-      console.log('Read standings to ' + nick);
-      bot.say(chanName, message.join("\n"));
-    }
-  },
-  "standingsn": {
-    url: 'http://fantasysports.yahooapis.com/fantasy/v2/league/nhl.l.99282/standings',
-    fn: function(data, cmdData, nick) {
-      var teams = data.league[1].standings[0].teams,
-          team, info, stats, standings;
-      var message = [], s;
-      message.push([
-          strpad("#", 2),
-          strpad("Name", 20),
-          strpad("W", 3),
-          strpad("L", 3),
-          strpad("T", 3),
-          strpad("%", 4),
-          "Waiver",
-          "Moves"
-        ].join(" "));
-      for(var i = 0; i < teams.count; i++) {
-        team = teams[i].team;
-        info = team[0];
-        stats = team[1];
-        standings = team[2].team_standings;
-        s = [
-              "\x02" + (i + 1) + ".\x02",
-              strpad(teamData[info[0].team_key].owner[0], 20),
+              strpad(name, 20),
               strpad(standings.outcome_totals.wins, 3),
               strpad(standings.outcome_totals.losses, 3),
               strpad(standings.outcome_totals.ties, 3),
@@ -291,6 +256,33 @@ var commands = {
           bot.say(chanName, nick + ": " + "There is no help available for '" + data[0] + "'.");
         }
       }
+    }
+  },
+  "scores": {
+    url: 'http://fantasysports.yahooapis.com/fantasy/v2/league/nhl.l.99282/scoreboard/matchups',
+    fn: function(data, cmdData, nick) {
+      var scoreboard = data.league[1].scoreboard[0].matchups,
+          matchup, team1, team2, pts1, pts2, name1, name2,
+          results = [];
+      var nicks = (cmdData[0] === "n");
+      for(var i = 0; i < scoreboard.count; i++) {
+        matchup = scoreboard[i].matchup[0];
+        team1 = matchup.teams[0].team;
+        team2 = matchup.teams[1].team;
+        pts1 = team1[1].team_points.total;
+        pts2 = team2[1].team_points.total;
+        name1 = (nicks) ? teamData[team1[0][0].team_key].owner[0] : teamData[team1[0][0].team_key].name;
+        name2 = (nicks) ? teamData[team2[0][0].team_key].owner[0] : teamData[team2[0][0].team_key].name;
+        if(pts1 > pts2) {
+          name1 = "\x02" + name1 + "\x02";
+          pts1 = "\x02" + pts1 + "\x02";
+        } else {
+          name2 = "\x02" + name2 + "\x02";
+          pts2 = "\x02" + pts2 + "\x02";
+        }
+        results.push(name1 + " " + pts1 + " - " + pts2 + " " + name2);
+      }
+      bot.say(chanName, results.join("\n"));
     }
   },
   "murt": {
