@@ -20,7 +20,7 @@ var config = {
 var teamData, statIds;
 
 var nick_hash = {
-  '321.l.99282.t.1': ['dan408', 'dan'],
+  '321.l.99282.t.1': ['dan408', 'dan', 'dan408_', 'dan408__'],
   '321.l.99282.t.2': ['doubleaw', 'awaw'],
   '321.l.99282.t.3': ['leafer91'],
   '321.l.99282.t.4': ['thero'],
