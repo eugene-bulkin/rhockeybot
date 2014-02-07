@@ -150,7 +150,7 @@ module.exports = function(get, chanName) {
           if(pts1 > pts2) {
             name1 = bold(name1);
             pts1 = bold(pts1);
-          } else {
+          } else if(pts2 > pts1) {
             name2 = bold(name2);
             pts2 = bold(pts2);
           }
@@ -164,7 +164,7 @@ module.exports = function(get, chanName) {
       fn: function(data, cmdData, nick) {
         var wmap = function(w){
           var name = w[0], l = w[1], r = w[2];
-          return name + " (" + bold(l) + "-" + r + ")";
+          return name + " (" + bold(l) + " - " + r + ")";
         }, tmap = function(w){
           var name = w[0], v = w[1];
           return name + " (" + v + ")";
@@ -238,7 +238,15 @@ module.exports = function(get, chanName) {
     "murt": {
       fn: function(data, nick) {
         this.log(nick + " told murt to fuck off");
-        var msgs = ["FUCK OFF MURT", "http://i.imgur.com/d9pZQS0.jpg", "http://i.imgur.com/nXqgx5X.jpg", "http://i.imgur.com/0rT7INi.jpg", "http://i.imgur.com/eeBDs9L.jpg", "http://i.imgur.com/wWoifA8.jpg"]
+        var msgs = [
+          "FUCK OFF MURT",
+          "http://i.imgur.com/d9pZQS0.jpg",
+          "http://i.imgur.com/nXqgx5X.jpg",
+          "http://i.imgur.com/0rT7INi.jpg",
+          "http://i.imgur.com/eeBDs9L.jpg",
+          "http://i.imgur.com/wWoifA8.jpg",
+          "http://i.imgur.com/DZtTLqf.jpg"
+        ];
         this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
       }
     },
