@@ -78,7 +78,7 @@ module.exports = function(get, chanName) {
               return this.statIds[s.stat.stat_id].display_name + " " + s.stat.value;
             }, this);
             stats.unshift("PTS " + data.team[1].team_points.total);
-            stats.unshift(team[1].name);
+            stats.unshift(bold(team[1].name));
             this.log("Told " + nick + " the stats for " + team[1].name);
             this.client.say(chanName, stats.join(" | "));
           }.bind(this), data, nick);
