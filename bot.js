@@ -38,13 +38,13 @@ var initOAuth = function() {
       token: access_token.oauth_token,
       token_secret: access_token.oauth_token_secret
     };
-    console.log("Visit " + access_token.xoauth_request_auth_url);
+    this.log("Visit " + access_token.xoauth_request_auth_url);
     prompt.start();
     prompt.get(['verifier'], function(err, res) {
       oauth.verifier = res.verifier;
       request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth:oauth}, function (e, r, body) {
         var perm_token = qs.parse(body);
-        console.log(perm_token);
+        this.log(perm_token);
         OAUTH = {
           consumer_key: API.key,
           consumer_secret: API.secret,
@@ -52,7 +52,7 @@ var initOAuth = function() {
           token_secret: perm_token.oauth_token_secret,
           session_handle: perm_token.oauth_session_handle
         };
-        console.log("Authenticated.");
+        this.log("Authenticated.");
         fs.writeFileSync('./oauth.json', JSON.stringify(OAUTH));
       });
     });
@@ -78,15 +78,32 @@ function Bot() {
   this.teamData = null;
   this.statIds = null;
   this.commands = require('./commands').bind(this)(this.get.bind(this), channel);
-  console.log(Object.keys(this.commands).length + " commands loaded.");
+  this.log(Object.keys(this.commands).length + " commands loaded.");
+}
+
+Bot.prototype.log = function() {
+  var args = Array.prototype.slice.call(arguments);
+  console.log.apply(null, args);
+  var now = new Date();
+  var y = now.getFullYear(),
+      m = now.getMonth() + 1,
+      d = now.getDate(),
+      h = now.getHours(),
+      m = now.getMinutes(),
+      s = now.getSeconds(),
+      timestamp = "[" + m + "/" + d + "/" + y + " " + h + ":" + m + ":" + s + "] ";
+  args = args.map(function(a){
+    return timestamp + a;
+  });
+  fs.appendFile('./bot.log', Array.prototype.join.call(args, "\n") + "\n");
 }
 
 Bot.prototype.get = function(url, cb, cmdData, nickname) {
   cb = cb.bind(this);
   request.get({ url: 'http://fantasysports.yahooapis.com/fantasy/v2/' + url + '?format=json', oauth: OAUTH, json: true }, function(e, r, body) {
     if(body.error) {
-      console.log(body.error);
-      console.log("Token expired. Reauthenticating...");
+      this.log(body.error);
+      this.log("Token expired. Reauthenticating...");
       request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth: OAUTH}, function (e, r, body) {
         var perm_token = qs.parse(body);
         OAUTH = {
@@ -106,13 +123,16 @@ Bot.prototype.get = function(url, cb, cmdData, nickname) {
 };
 
 Bot.prototype.init = function() {
-  console.log('Connecting to IRC...');
+  this.log('Connecting to IRC...');
   this.client = new irc.Client(config.server, config.botName, {
     channels: config.channels
   });
   this.client.addListener('registered', this.onConnect.bind(this));
   this.client.addListener('names', this.onJoin.bind(this));
   this.client.addListener('message' + channel, this.onMessage.bind(this));
+  this.client.addListener('error', function(message) {
+    this.log("IRC Error: " + message);
+  }.bind(this));
 };
 
 Bot.prototype.getTeam = function(data) {
@@ -128,8 +148,8 @@ Bot.prototype.getTeam = function(data) {
 };
 
 Bot.prototype.onConnect = function(message) {
-  console.log('Bot connected.');
-  console.log('Getting team data...');
+  this.log('Bot connected.');
+  this.log('Getting team data...');
   this.get('league/nhl.l.99282/teams', function(data) {
     var team;
     this.teamData = {};
@@ -140,9 +160,9 @@ Bot.prototype.onConnect = function(message) {
         owner: this.nickHash[team[0].team_key]
       };
     }
-    console.log("Team data loaded.");
+    this.log("Team data loaded.");
   });
-  console.log("Loading league settings...");
+  this.log("Loading league settings...");
   this.get('league/nhl.l.99282/settings', function(data) {
     var settings = data.league[1].settings[0];
     this.statIds = {};
@@ -150,12 +170,12 @@ Bot.prototype.onConnect = function(message) {
       var stat = data.stat;
       this.statIds[stat.stat_id] = stat;
     }, this);
-    console.log("League settings loaded.");
+    this.log("League settings loaded.");
   });
 };
 
 Bot.prototype.onJoin = function(channel, names) {
-  console.log("Joined " + channel);
+  this.log("Joined " + channel);
 };
 
 Bot.prototype.onMessage = function(nick, text, message) {
@@ -168,27 +188,32 @@ Bot.prototype.onMessage = function(nick, text, message) {
   }
   var cmd = msg[0].replace(/^\!f/,'').toLowerCase();
   if(this.commands.hasOwnProperty(cmd)) {
+    var c = this.commands[cmd];
+    // check if alias
+    if(typeof c === typeof "") {
+      c = this.commands[c];
+    }
     try {
-      if(this.commands[cmd].url) {
-        this.get(this.commands[cmd].url, this.commands[cmd].fn.bind(this), msg.slice(1), message.nick);
+      if(c.url) {
+        this.get(c.url, c.fn.bind(this), msg.slice(1), message.nick);
       } else {
-        this.commands[cmd].fn.bind(this)(msg.slice(1), message.nick);
+        c.fn.bind(this)(msg.slice(1), message.nick);
       }
     } catch(e) {
-      console.log("Calling command '" + cmd + "' resulted in the following error: " + e.message);
+      this.log("Calling command '" + cmd + "' resulted in the following error: " + e.message);
     }
     if(message.nick === "ruhan" && Math.random() < 0.8) {
       this.client.say(channel, "And no, you can't have the Blackhawks' fourth line.");
     }
   } else {
-    console.log(message.nick + " tried to use unrecognized command '" + cmd + "'.");
+    this.log(message.nick + " tried to use unrecognized command '" + cmd + "'.");
   }
 };
 
 Bot.prototype.reloadCmds = function() {
   delete require.cache[Object.keys(require.cache).filter(function(m){return m.match(/commands\.js/)})[0]];
   this.commands = require('./commands.js').bind(this)(this.get.bind(this), channel);
-  console.log(Object.keys(this.commands).length + " commands loaded.");
+  this.log(Object.keys(this.commands).length + " commands loaded.");
 };
 
 var b = new Bot();
