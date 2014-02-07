@@ -65,7 +65,7 @@ module.exports = function(get, chanName) {
         if(!this.teamData || !this.statIds) {
           return;
         }
-        var team = getTeam(data);
+        var team = this.getTeam(data);
         if(!team) {
           this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
         } else {
@@ -74,12 +74,12 @@ module.exports = function(get, chanName) {
             var tstats = data.team[1].team_stats;
             var stats = tstats.stats.map(function(s) {
               return this.statIds[s.stat.stat_id].display_name + " " + s.stat.value;
-            });
+            }, this);
             stats.unshift("PTS " + data.team[1].team_points.total);
             stats.unshift(team[1].name);
             console.log("Told " + nick + " the stats for " + team[1].name);
             this.client.say(chanName, stats.join(" | "));
-          }, data, nick);
+          }.bind(this), data, nick);
         }
       }
     },
@@ -119,10 +119,10 @@ module.exports = function(get, chanName) {
     "help": {
       fn: function(data, nick) {
         if(data.length === 0) {
-          this.client.say(chanName, nick + ": " + "The following commands are available: " + Object.keys(help).join(", "));
+          this.client.say(chanName, nick + ": " + "The following commands are available: " + Object.keys(this.help).join(", "));
         } else {
-          if(help[data[0]]) {
-            this.client.say(chanName, help[data[0]]);
+          if(this.help[data[0]]) {
+            this.client.say(chanName, this.help[data[0]]);
           } else {
             this.client.say(chanName, nick + ": " + "There is no help available for '" + data[0] + "'.");
           }
@@ -159,7 +159,8 @@ module.exports = function(get, chanName) {
     "murt": {
       fn: function(data, nick) {
         console.log(nick + " told murt to fuck off");
-        this.client.say(chanName, "FUCK OFF MURT");
+        var msgs = ["FUCK OFF MURT", "http://i.imgur.com/d9pZQS0.jpg", "http://i.imgur.com/nXqgx5X.jpg", "http://i.imgur.com/0rT7INi.jpg", "http://i.imgur.com/eeBDs9L.jpg", "http://i.imgur.com/wWoifA8.jpg"]
+        this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
       }
     },
     "doubleaw": {
@@ -180,6 +181,12 @@ module.exports = function(get, chanName) {
     "dan": {
       fn: function(data, nick) {
         this.client.say(chanName, "Hey " + nick + " wanna suck me off?");
+      }
+    },
+    "signal": {
+      fn: function(data, nick) {
+        var msgs = ["do you have a sister", "what color are your pubes"];
+        this.client.say(chanName, "Hey " + nick + " " + msgs[(Math.random() * msgs.length) | 0] + "?");
       }
     },
     "uck": {
