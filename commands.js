@@ -290,7 +290,7 @@ module.exports = function(get, chanName) {
     },
     "snackle": {
       fn: function(data, nick) {
-        this.client.say(chanName, "#JasmineNips2014");
+        this.client.say(chanName, "#JasminesNips2014");
       }
     }
   };
