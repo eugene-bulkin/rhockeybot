@@ -246,7 +246,8 @@ module.exports = function(get, chanName) {
           "http://i.imgur.com/eeBDs9L.jpg",
           "http://i.imgur.com/wWoifA8.jpg",
           "http://i.imgur.com/DZtTLqf.jpg",
-          "http://i.imgur.com/3UsTnbP.jpg"
+          "http://i.imgur.com/3UsTnbP.jpg",
+          "http://i.imgur.com/6d6jNGU.jpg"
         ];
         this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
       }
