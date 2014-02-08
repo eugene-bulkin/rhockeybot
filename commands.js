@@ -285,7 +285,12 @@ module.exports = function(get, chanName) {
     },
     "thirty": {
       fn: function(data, nick) {
-        this.client.say(chanName, "The fix will be posted at noon tomorrow on dan408sucks.com");
+        this.client.say(chanName, "The fix will be posted at noon tomorrow on macrumors.com");
+      }
+    },
+    "snackle": {
+      fn: function(data, nick) {
+        this.client.say(chanName, "#JasmineNips2014");
       }
     }
   };
