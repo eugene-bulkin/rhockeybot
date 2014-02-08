@@ -245,7 +245,8 @@ module.exports = function(get, chanName) {
           "http://i.imgur.com/0rT7INi.jpg",
           "http://i.imgur.com/eeBDs9L.jpg",
           "http://i.imgur.com/wWoifA8.jpg",
-          "http://i.imgur.com/DZtTLqf.jpg"
+          "http://i.imgur.com/DZtTLqf.jpg",
+          "http://i.imgur.com/3UsTnbP.jpg"
         ];
         this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
       }
@@ -279,6 +280,11 @@ module.exports = function(get, chanName) {
     "uck": {
       fn: function(data, nick) {
         this.client.say(chanName, "Woah, watch your language, asshole.");
+      }
+    },
+    "thirty": {
+      fn: function(data, nick) {
+        this.client.say(chanName, "The fix will be posted at noon tomorrow on dan408sucks.com");
       }
     }
   };
