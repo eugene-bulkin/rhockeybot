@@ -316,6 +316,37 @@ module.exports = function(get, chanName) {
       fn: function(data, nick) {
         this.client.say(chanName, "#JasminesNips2014");
       }
+    },
+    "lahey": {
+      fn: function(data, nick) {
+        var msgs = [
+          "Birds of a shitfeather flock together, $nick.",
+          "You just opened Pandora's Shitbox, $nick.",
+          "I am the liquor.",
+          "The shit pool's gettin full $nick, time to strain the shit before it overflows. I will not have a Pompeiian shit catastrophe on my hands.",
+          "Did you see that, $nick? Goddamn shitapple driving the shitmobile. No body else in this park gives a fuck why should I?",
+          "The ole shit liner is coming to port, and I'll be there to tie her up.",
+          "How dare you involve my daughter in your hemisphere of shit.",
+          "Captain Shittacular.",
+          "I'm watching you, like a shithawk.",
+          "We're sailing into a shit typhoon $nick, we'd better haul in the jib before it gets covered in shit.",
+          "How dare you involve my daughter in your hemisphere of shit.",
+          "Your shit-goose is cooked, $nick.",
+          "Shit-apples never fall far from the shit-tree, $nick.",
+          "$nick's about to enter the shit tornado to Oz.",
+          "Do you feel that $nick? The way the shit clings to the air? Shit Blizzard.",
+          "Never Cry Shitwolf, $nick",
+          "Yes I used to drink, $nick, but I got the shitmonkey off my back for good.",
+          "You know what you get when two shit-tectonic plates collide? Shitquakes, $nick. Shitquakes.",
+          "The ole shit liner is coming to port, and I'll be there to tie her up.",
+          "We got the key to shitty city, $nick, and Julian's the muscular mayor.",
+          "You boys have loaded up a hair-trigger, double barrelled shitmachinegun, and the barrel's pointing right at your own heads.",
+          "Shit moths, $nick.",
+          "Do you know what a shit rope is, $nick?",
+          "The old shit barometer is rising."
+        ];
+        this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0].replace("$nick", nick));
+      }
     }
   };
 };
