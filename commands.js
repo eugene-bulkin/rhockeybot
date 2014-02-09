@@ -267,7 +267,9 @@ module.exports = function(get, chanName) {
             "http://i.imgur.com/wWoifA8.jpg",
             "http://i.imgur.com/DZtTLqf.jpg",
             "http://i.imgur.com/3UsTnbP.jpg",
-            "http://i.imgur.com/6d6jNGU.jpg"
+            "http://i.imgur.com/6d6jNGU.jpg",
+            "http://i.imgur.com/Ynd0IVC.jpg",
+            "http://i.imgur.com/5n0ZAcq.jpg"
           ];
           if(!err) {
             msgs.push(data);
