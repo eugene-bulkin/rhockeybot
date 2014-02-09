@@ -31,8 +31,8 @@ module.exports = function(get, chanName) {
           this.client.say(chanName, "You can't do that.");
           return;
         }
-        figlet('fuck off murt', function(err, data) {
-          this.log(data);
+        figlet(data.join(" "), function(err, data) {
+          this.client.say(chanName, data);
         }.bind(this));
       }
     },
