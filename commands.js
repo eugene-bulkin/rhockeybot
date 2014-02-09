@@ -1,4 +1,6 @@
 var util = require('util');
+var fs = require('fs');
+var figlet = require('figlet');
 
 var strpad = function(str, len) {
   str = String(str);
@@ -14,13 +16,24 @@ var bold = function(str) {
 
 module.exports = function(get, chanName) {
   return {
-    "reloadcmds": {
+    "reload": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
           this.client.say(chanName, "You can't do that.");
           return;
         }
-        this.reloadCmds();
+        this.reload();
+      }
+    },
+    "iglet": {
+      fn: function(data, nick) {
+        if(nick !== "DoubleAW" && nick !== "AWAW") {
+          this.client.say(chanName, "You can't do that.");
+          return;
+        }
+        figlet('fuck off murt', function(err, data) {
+          this.log(data);
+        }.bind(this));
       }
     },
     "standings": {

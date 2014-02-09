@@ -68,12 +68,7 @@ function Bot() {
     '321.l.99282.t.5': ['amaninacan'],
     '321.l.99282.t.6': ['thatoneroadie']
   };
-  this.help = {
-    "fstandings": "Displays the standings for the #reddit-hockey fantasy league.",
-    "fstarters": "Displays the current starting lineup for the specified team.",
-    "fstats": "Displays the season stats for the specified team.",
-    "fhelp": "What do you think that does?"
-  };
+  this.help = require('./help.json');
 
   this.teamData = null;
   this.statIds = null;
@@ -210,10 +205,18 @@ Bot.prototype.onMessage = function(nick, text, message) {
   }
 };
 
-Bot.prototype.reloadCmds = function() {
+Bot.prototype.reload = function() {
   delete require.cache[Object.keys(require.cache).filter(function(m){return m.match(/commands\.js/)})[0]];
   this.commands = require('./commands.js').bind(this)(this.get.bind(this), channel);
   this.log(Object.keys(this.commands).length + " commands loaded.");
+  fs.readFile('./help.json', function(err, data) {
+    if(err) {
+      console.log('Error reading help data.');
+    } else {
+      this.help = JSON.parse(data);
+      this.log("Help loaded.");
+    }
+  }.bind(this));
 };
 
 var b = new Bot();
