@@ -31,7 +31,10 @@ module.exports = function(get, chanName) {
           this.client.say(chanName, "You can't do that.");
           return;
         }
-        figlet(data.join(" "), function(err, data) {
+        figlet(data.join(" "), {
+          font: 'Small',
+          horizontalLayout: 'fitted'
+        }, function(err, data) {
           this.client.say(chanName, data);
         }.bind(this));
       }
@@ -250,19 +253,27 @@ module.exports = function(get, chanName) {
     },
     "murt": {
       fn: function(data, nick) {
-        this.log(nick + " told murt to fuck off");
-        var msgs = [
-          "FUCK OFF MURT",
-          "http://i.imgur.com/d9pZQS0.jpg",
-          "http://i.imgur.com/nXqgx5X.jpg",
-          "http://i.imgur.com/0rT7INi.jpg",
-          "http://i.imgur.com/eeBDs9L.jpg",
-          "http://i.imgur.com/wWoifA8.jpg",
-          "http://i.imgur.com/DZtTLqf.jpg",
-          "http://i.imgur.com/3UsTnbP.jpg",
-          "http://i.imgur.com/6d6jNGU.jpg"
-        ];
-        this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
+        figlet("FUCK OFF MURT", {
+          font: 'Small',
+          horizontalLayout: 'fitted'
+        }, function(err, data) {
+          this.log(nick + " told murt to fuck off");
+          var msgs = [
+            "FUCK OFF MURT",
+            "http://i.imgur.com/d9pZQS0.jpg",
+            "http://i.imgur.com/nXqgx5X.jpg",
+            "http://i.imgur.com/0rT7INi.jpg",
+            "http://i.imgur.com/eeBDs9L.jpg",
+            "http://i.imgur.com/wWoifA8.jpg",
+            "http://i.imgur.com/DZtTLqf.jpg",
+            "http://i.imgur.com/3UsTnbP.jpg",
+            "http://i.imgur.com/6d6jNGU.jpg"
+          ];
+          if(!err) {
+            msgs.push(data);
+          }
+          this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
+        }.bind(this));
       }
     },
     "doubleaw": {
