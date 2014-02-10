@@ -278,6 +278,11 @@ module.exports = function(get, chanName) {
         }.bind(this));
       }
     },
+    "leafer": {
+      fn: function(data, nick) {
+        this.client.say(chanName, "Man, I really could go for some throat lasagnas right now.");
+      }
+    },
     "doubleaw": {
       fn: function(data, nick) {
         this.client.say(chanName, "That's the guy that made me. He must be way better than amaninacan.");
