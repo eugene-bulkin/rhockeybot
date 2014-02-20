@@ -9,14 +9,14 @@ var API = require('./api.json');
 var OAUTH = require('./oauth.json');
 
 // enable this to keep it out of the main channel
-var TESTING = 0;
+var TESTING = 1;
 
 var channel = (TESTING) ? "#doubleaw" : "#reddit-hockey";
 
 var config = {
   channels: [channel],
   server: "irc.freenode.net",
-  botName: "rfstats"
+  botName: "rfstats2"
 };
 
 var initOAuth = function() {

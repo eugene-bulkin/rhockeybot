@@ -134,6 +134,37 @@ module.exports = function(get, chanName) {
         }
       }
     },
+    "roster": {
+      fn: function(data, nick) {
+        if(!this.teamData || !this.statIds) {
+          return;
+        }
+        var team = this.getTeam(data);
+        if(!team) {
+          this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
+        } else {
+          var key = team[0];
+          get('team/' + key + '/roster', function(data, cmdData, nick) {
+            var players = data.team[1].roster[0].players,
+                info, position;
+            var positions = {};
+            for(var i = 0; i < players.count; i++) {
+              info = players[i].player[0];
+              position = players[i].player[1].selected_position[1].position;
+              if(!positions[position]) {
+                positions[position] = [];
+              }
+              positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
+            }
+            var spots = Object.keys(positions).map(function(pos){
+              return pos + ": " + positions[pos].join(", ");
+            });
+            spots.unshift(team[1].name);
+            this.client.say(chanName, spots.join(" | "));
+          }, data, nick);
+        }
+      }
+    },
     "help": {
       fn: function(data, nick) {
         if(data.length === 0) {
