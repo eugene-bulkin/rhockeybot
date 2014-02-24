@@ -23,6 +23,7 @@ module.exports = function(get, chanName) {
           return;
         }
         this.reload();
+        this.client.say(chanName, "Done.");
       }
     },
     "iglet": {
