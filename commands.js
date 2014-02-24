@@ -326,7 +326,11 @@ module.exports = function(get, chanName) {
     },
     "thero": {
       fn: function(data, nick) {
-        this.client.say(chanName, "Go fuck yourself dan.");
+        if(nick.toLowerCase() === "thero") {
+          this.client.say(chanName, "Go fuck yourself " + nick);
+        } else {
+          this.client.say(chanName, "Go fuck yourself dan.");
+        }
       }
     },
     "dan": {
