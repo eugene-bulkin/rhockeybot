@@ -16,7 +16,7 @@ var channel = (TESTING) ? "#doubleaw" : "#reddit-hockey";
 var config = {
   channels: [channel],
   server: "irc.freenode.net",
-  botName: "rfstats2"
+  botName: (TESTING) ? "rfstats2" : "rfstats"
 };
 
 var initOAuth = function() {
