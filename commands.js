@@ -328,7 +328,7 @@ module.exports = function(get, chanName) {
     "thero": {
       fn: function(data, nick) {
         if(nick.toLowerCase() === "thero") {
-          this.client.say(chanName, "Go fuck yourself " + nick);
+          this.client.say(chanName, "Go fuck yourself " + nick + ".");
         } else {
           this.client.say(chanName, "Go fuck yourself dan.");
         }
@@ -358,6 +358,16 @@ module.exports = function(get, chanName) {
     "snackle": {
       fn: function(data, nick) {
         this.client.say(chanName, "#JasminesNips2014");
+      }
+    },
+    "panthers": {
+      fn: function(data, nick) {
+        this.client.say(chanName, "http://i.imgur.com/LXDNmml.jpg");
+      }
+    },
+    "source": {
+      fn: function(data, nick) {
+        this.client.say(chanName, "If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot");
       }
     },
     "lahey": {
