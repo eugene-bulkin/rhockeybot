@@ -9,7 +9,7 @@ var API = require('./api.json');
 var OAUTH = require('./oauth.json');
 
 // enable this to keep it out of the main channel
-var TESTING = 1;
+var TESTING = 0;
 
 var channel = (TESTING) ? "#doubleaw" : "#reddit-hockey";
 
@@ -197,7 +197,7 @@ Bot.prototype.onMessage = function(nick, text, message) {
     } catch(e) {
       this.log("Calling command '" + cmd + "' resulted in the following error: " + e.message);
     }
-    if(message.nick === "ruhan" && Math.random() < 0.8) {
+    if(message.nick === "ruhan" && Math.random() < 0.3) {
       this.client.say(channel, "And no, you can't have the Blackhawks' fourth line.");
     }
   } else {
