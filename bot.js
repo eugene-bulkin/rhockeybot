@@ -165,6 +165,11 @@ Bot.prototype.onConnect = function(message) {
 
 Bot.prototype.onJoin = function(channel, names) {
   this.log("Joined " + channel);
+  this.channel = channel;
+};
+
+Bot.prototype.talk = function(msg) {
+  this.client.say(this.channel, msg);
 };
 
 Bot.prototype.onMessage = function(nick, text, message) {
@@ -192,7 +197,7 @@ Bot.prototype.onMessage = function(nick, text, message) {
       this.log("Calling command '" + cmd + "' resulted in the following error: " + e.message);
     }
     if(message.nick === "ruhan" && Math.random() < 0.3) {
-      this.client.say(channel, "And no, you can't have the Blackhawks' fourth line.");
+      this.talk(channel, "And no, you can't have the Blackhawks' fourth line.");
     }
   } else {
     this.log(message.nick + " tried to use unrecognized command '" + cmd + "'.");
@@ -235,7 +240,7 @@ process.on('SIGTERM', function(code) {
 
 process.on('uncaughtException', function(e) {
   this.log('Caught exception: ' + e);
-  this.client.say(channel, "Sorry, an error occurred while trying to execute that command. It won't work again with those arguments until fixed, so please wait for my owner to fix it and reload my commands.");
-  this.client.say("DoubleAW", "An error occurred, see my logs.");
-  this.client.say("AWAW", "An error occurred, see my logs.");
+  this.talk(channel, "Sorry, an error occurred while trying to execute that command. It won't work again with those arguments until fixed, so please wait for my owner to fix it and reload my commands.");
+  this.talk("DoubleAW", "An error occurred, see my logs.");
+  this.talk("AWAW", "An error occurred, see my logs.");
 }.bind(b));

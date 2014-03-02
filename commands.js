@@ -84,18 +84,18 @@ module.exports = function(get, chanName) {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
           this.log(nick + " tried to reload commands.");
-          this.client.say(chanName, "You can't do that.");
+          this.talk("You can't do that.");
           return;
         }
         this.reload();
-        this.client.say(chanName, "Done.");
+        this.talk("Done.");
       }
     },
     "iglet": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
           this.log(nick + " tried to use figlet.");
-          this.client.say(chanName, "You can't do that.");
+          this.talk("You can't do that.");
           return;
         }
         figlet(data.join(" "), {
@@ -103,7 +103,7 @@ module.exports = function(get, chanName) {
           horizontalLayout: 'fitted'
         }, function(err, str) {
           this.log("Displayed a figlet image for the phrase '" + data.join(" ") + "'");
-          this.client.say(chanName, str);
+          this.talk(str);
         }.bind(this));
       }
     },
@@ -143,7 +143,7 @@ module.exports = function(get, chanName) {
           i++;
         }, this);
         this.log('Read standings to ' + nick);
-        this.client.say(chanName, message.join("\n"));
+        this.talk(message.join("\n"));
       }
     },
     "stats": {
@@ -158,7 +158,7 @@ module.exports = function(get, chanName) {
           } else {
             this.log(nick + " tried to get stats for nonexistent team/owner(s) '" + data.join(" ") + "'");
           }
-          this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
+          this.talk(nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var key = team[0];
           get('team/' + key + '/stats', function(data, cmdData, nick) {
@@ -169,7 +169,7 @@ module.exports = function(get, chanName) {
             stats.unshift("PTS " + data.team[1].team_points.total);
             stats.unshift(bold(team[1].name));
             this.log("Told " + nick + " the stats for " + team[1].name);
-            this.client.say(chanName, stats.join(" | "));
+            this.talk(stats.join(" | "));
           }.bind(this), data, nick);
         }
       }
@@ -186,7 +186,7 @@ module.exports = function(get, chanName) {
           } else {
             this.log(nick + " tried to get starters for nonexistent team/owner(s) '" + data.join(" ") + "'");
           }
-          this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
+          this.talk(nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var key = team[0];
           get('team/' + key + '/roster', function(data, cmdData, nick) {
@@ -208,7 +208,7 @@ module.exports = function(get, chanName) {
             });
             spots.unshift(team[1].name);
             this.log("Read starters for " + team[1].name + " to " + nick);
-            this.client.say(chanName, spots.join(" | "));
+            this.talk(spots.join(" | "));
           }, data, nick);
         }
       }
@@ -225,7 +225,7 @@ module.exports = function(get, chanName) {
           } else {
             this.log(nick + " tried to get roster for nonexistent team/owner(s) '" + data.join(" ") + "'");
           }
-          this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
+          this.talk(nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var key = team[0];
           get('team/' + key + '/roster', function(data, cmdData, nick) {
@@ -244,7 +244,7 @@ module.exports = function(get, chanName) {
             });
             spots.unshift(team[1].name);
             this.log("Read roster for " + team[1].name + " to " + nick);
-            this.client.say(chanName, spots.join(" | "));
+            this.talk(spots.join(" | "));
           }, data, nick);
         }
       }
@@ -257,17 +257,17 @@ module.exports = function(get, chanName) {
         });
         if(data.length === 0) {
           this.log("Read help to " + nick);
-          this.client.say(chanName, nick + ": " + "The following commands are available: " + cmds.join(", "));
+          this.talk(nick + ": " + "The following commands are available: " + cmds.join(", "));
         } else {
           if(this.help[data[0]]) {
             this.log("Read help to " + nick + " for !" + data[0]);
-            this.client.say(chanName, this.help[data[0]]);
+            this.talk(this.help[data[0]]);
           } else if(this.help["~" + data[0]]) {
             this.log("Read help to " + nick + " for !" + data[0]);
-            this.client.say(chanName, this.help["~" + data[0]]);
+            this.talk(this.help["~" + data[0]]);
           } else {
             this.log("Told " + nick + " the '" + data[0] + "' command does not exist");
-            this.client.say(chanName, nick + ": " + "There is no help available for '" + data[0] + "'.");
+            this.talk(nick + ": " + "There is no help available for '" + data[0] + "'.");
           }
         }
       }
@@ -297,7 +297,7 @@ module.exports = function(get, chanName) {
           results.push(name1 + " " + pts1 + " - " + pts2 + " " + name2);
         }, this);
         this.log("Read scores to " + nick);
-        this.client.say(chanName, results.join("\n"));
+        this.talk(results.join("\n"));
       }
     },
     "matchup": {
@@ -320,7 +320,7 @@ module.exports = function(get, chanName) {
           } else {
             this.log(nick + " tried to get a matchup for nonexistent team/owner(s) '" + cmdData.join(" ") + "'");
           }
-          this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
+          this.talk(nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var scoreboard = data.league[1].scoreboard[0].matchups,
               matchup, team1, team2, stats1, stats2,
@@ -379,7 +379,7 @@ module.exports = function(get, chanName) {
             }
           }
           this.log("Read matchup between " + team1[0][2].name + " and " + team2[0][2].name + " to " + nick);
-          this.client.say(chanName, results.join(" | "));
+          this.talk(results.join(" | "));
         }
       }
     },
@@ -407,7 +407,7 @@ module.exports = function(get, chanName) {
           logStr += " to " + nick;
           this.log(logStr);
           yforEach(transactions, function(t) {
-            this.client.say(chanName, formatTransaction.apply(this, t.transaction));
+            this.talk(formatTransaction.apply(this, t.transaction));
           }, this);
         });
       }
@@ -436,80 +436,80 @@ module.exports = function(get, chanName) {
             msgs.push(data);
           }
           this.log(nick + " told murt to fuck off");
-          this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
+          this.talk(msgs[(Math.random() * msgs.length) | 0]);
         }.bind(this));
       }
     },
     "leafer": {
       fn: function(data, nick) {
         this.log(nick + " quoted Leafer91");
-        this.client.say(chanName, "Man, I really could go for some throat lasagnas right now.");
+        this.talk("Man, I really could go for some throat lasagnas right now.");
       }
     },
     "doubleaw": {
       fn: function(data, nick) {
         this.log(nick + " asked me to talk about how awesome DoubleAW is");
-        this.client.say(chanName, "That's the guy that made me. He must be way better than amaninacan.");
+        this.talk("That's the guy that made me. He must be way better than amaninacan.");
       }
     },
     "ruhan": {
       fn: function(data, nick) {
         this.log(nick + " made fun of ruhan");
-        this.client.say(chanName, "No, you can't have the Chicago fourth line.");
+        this.talk("No, you can't have the Chicago fourth line.");
       }
     },
     "thero": {
       fn: function(data, nick) {
         if(nick.toLowerCase() === "thero") {
           this.log(nick + " tried to tell dan to fuck himself but failed");
-          this.client.say(chanName, "Go fuck yourself " + nick + ".");
+          this.talk("Go fuck yourself " + nick + ".");
         } else {
           this.log(nick + " told dan to fuck himself");
-          this.client.say(chanName, "Go fuck yourself dan.");
+          this.talk("Go fuck yourself dan.");
         }
       }
     },
     "dan": {
       fn: function(data, nick) {
         this.log(nick + " asked for a blowjob");
-        this.client.say(chanName, "Hey " + nick + " wanna suck me off?");
+        this.talk("Hey " + nick + " wanna suck me off?");
       }
     },
     "signal": {
       fn: function(data, nick) {
         var msgs = ["do you have a sister", "what color are your pubes", "would you drink my bathwater", "can you recommend a good porno"];
         this.log(nick + " quoted SiGNAL");
-        this.client.say(chanName, "Hey " + nick + " " + msgs[(Math.random() * msgs.length) | 0] + "?");
+        this.talk("Hey " + nick + " " + msgs[(Math.random() * msgs.length) | 0] + "?");
       }
     },
     "uck": {
       fn: function(data, nick) {
         this.log(nick + " swore at me");
-        this.client.say(chanName, "Woah, watch your language, asshole.");
+        this.talk("Woah, watch your language, asshole.");
       }
     },
     "thirty": {
       fn: function(data, nick) {
         this.log(nick + " quoted thirty");
-        this.client.say(chanName, "The fix will be posted at noon tomorrow on macrumors.com");
+        this.talk("The fix will be posted at noon tomorrow on macrumors.com");
       }
     },
     "snackle": {
       fn: function(data, nick) {
         this.log(nick + " said something about Jasmine's nips");
-        this.client.say(chanName, "#JasminesNips2014");
+        this.talk("#JasminesNips2014");
       }
     },
     "panthers": {
       fn: function(data, nick) {
         this.log(nick + " blessed the channel with the Panthers logo");
-        this.client.say(chanName, "http://i.imgur.com/LXDNmml.jpg");
+        this.talk("http://i.imgur.com/LXDNmml.jpg");
       }
     },
     "source": {
       fn: function(data, nick) {
         this.log(nick + " asked about my source code");
-        this.client.say(chanName, "If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot");
+        this.talk("If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot");
       }
     },
     "lahey": {
@@ -541,7 +541,7 @@ module.exports = function(get, chanName) {
           "The old shit barometer is rising."
         ];
         this.log(nick + " asked for a Lahey quote");
-        this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0].replace("$nick", nick));
+        this.talk(msgs[(Math.random() * msgs.length) | 0].replace("$nick", nick));
       }
     }
   };
