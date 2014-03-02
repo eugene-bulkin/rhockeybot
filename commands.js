@@ -227,6 +227,33 @@ module.exports = function(get, chanName) {
           var scoreboard = data.league[1].scoreboard[0].matchups,
               matchup, team1, team2, stats1, stats2,
               wins1 = [], wins2 = [], ties = [], results;
+          var statDeterminer = function(stat1, i){
+            stat1 = stat1.stat;
+            var stat2 = stats2[i].stat;
+            var val1 = stat1.value, val2 = stat2.value;
+            if(this.statIds[stat1.stat_id].display_name === "SA") {
+              // why is this here?
+              return;
+            }
+            if(this.statIds[stat1.stat_id].display_name === "GAA") {
+              // we want GAA to be lower!
+              if(val1 < val2) {
+                wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
+              } else if(val2 < val1) {
+                wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
+              } else {
+                ties.push([this.statIds[stat1.stat_id].display_name, val1]);
+              }
+            } else {
+              if(val1 > val2) {
+                wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
+              } else if(val2 > val1) {
+                wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
+              } else {
+                ties.push([this.statIds[stat1.stat_id].display_name, val1]);
+              }
+            }
+          };
           for(var i = 0; i < scoreboard.count; i++) {
             matchup = scoreboard[i].matchup[0];
             team1 = matchup.teams[0].team;
@@ -234,33 +261,7 @@ module.exports = function(get, chanName) {
             if(team1[0][0].team_key === team[0] || team2[0][0].team_key === team[0]) {
               stats1 = team1[1].team_stats.stats;
               stats2 = team2[1].team_stats.stats;
-              stats1.forEach(function(stat1, i){
-                stat1 = stat1.stat;
-                var stat2 = stats2[i].stat;
-                var val1 = stat1.value, val2 = stat2.value;
-                if(this.statIds[stat1.stat_id].display_name === "SA") {
-                  // why is this here?
-                  return;
-                }
-                if(this.statIds[stat1.stat_id].display_name === "GAA") {
-                  // we want GAA to be lower!
-                  if(val1 < val2) {
-                    wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
-                  } else if(val2 < val1) {
-                    wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
-                  } else {
-                    ties.push([this.statIds[stat1.stat_id].display_name, val1]);
-                  }
-                } else {
-                  if(val1 > val2) {
-                    wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
-                  } else if(val2 > val1) {
-                    wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
-                  } else {
-                    ties.push([this.statIds[stat1.stat_id].display_name, val1]);
-                  }
-                }
-              }, this);
+              stats1.forEach(statDeterminer, this);
               var score = [team1[0][2].name + " " + wins1.length, wins2.length + " " + team2[0][2].name];
               if(wins1.length > wins2.length) {
                 score[0] = bold(score[0]);
