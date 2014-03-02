@@ -133,7 +133,7 @@ Bot.prototype.getTeam = function(data) {
   }, this).filter(function(i){
     // filter to find the one that either matches the full team name
     // or matches the nickname
-    return i[1].name === data.join(" ") || i[1].owner.indexOf(specNick) > -1
+    return i[1].name === data.join(" ") || i[1].owner.indexOf(specNick) > -1;
   })[0];
 };
 
@@ -201,7 +201,9 @@ Bot.prototype.onMessage = function(nick, text, message) {
 };
 
 Bot.prototype.reload = function() {
-  delete require.cache[Object.keys(require.cache).filter(function(m){return m.match(/commands\.js/)})[0]];
+  delete require.cache[Object.keys(require.cache).filter(function(m) {
+    return m.match(/commands\.js/);
+  })[0]];
   this.commands = require('./commands.js').bind(this)(this.get.bind(this), channel);
   this.log(Object.keys(this.commands).length + " commands loaded.");
   fs.readFile('./help.json', function(err, data) {
