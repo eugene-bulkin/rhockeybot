@@ -341,7 +341,7 @@ module.exports = function(get, chanName) {
     },
     "signal": {
       fn: function(data, nick) {
-        var msgs = ["do you have a sister", "what color are your pubes", "would you drink my bathwater"];
+        var msgs = ["do you have a sister", "what color are your pubes", "would you drink my bathwater", "can you recommend a good porno"];
         this.client.say(chanName, "Hey " + nick + " " + msgs[(Math.random() * msgs.length) | 0] + "?");
       }
     },
