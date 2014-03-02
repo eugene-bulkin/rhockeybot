@@ -283,6 +283,7 @@ module.exports = function(get, chanName) {
         }
       }
     },
+    // silly crap
     "murt": {
       fn: function(data, nick) {
         figlet("FUCK OFF MURT", {
