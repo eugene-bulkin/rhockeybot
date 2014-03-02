@@ -9,7 +9,7 @@ var API = require('./api.json');
 var OAUTH = require('./oauth.json');
 
 // enable this to keep it out of the main channel
-var TESTING = 0;
+var TESTING = process.argv.slice(2).indexOf('t') > -1;
 
 var channel = (TESTING) ? "#doubleaw" : "#reddit-hockey";
 
