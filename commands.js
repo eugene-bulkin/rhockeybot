@@ -107,9 +107,8 @@ module.exports = function(get, chanName) {
     "standings": {
       url: 'league/nhl.l.99282/standings',
       fn: function(data, cmdData, nick) {
-        var teams = data.league[1].standings[0].teams,
-            team, info, stats, standings, name;
-        var message = [], s;
+        var teams = data.league[1].standings[0].teams;
+        var message = [], i = 0;
         var nicks = (cmdData[0] === "n");
         message.push([
             strpad("\x1f#\x1f", 2 + 2),
@@ -121,13 +120,13 @@ module.exports = function(get, chanName) {
             "\x1fWaiver\x1f",
             "\x1fMoves\x1f"
           ].join(" "));
-        for(var i = 0; i < teams.count; i++) {
-          team = teams[i].team;
-          info = team[0];
-          stats = team[1];
-          standings = team[2].team_standings;
-          name = (nicks) ? this.teamData[info[0].team_key].owner[0] : this.teamData[info[0].team_key].name;
-          s = [
+        yforEach(teams, function(t) {
+          var team = t.team;
+          var info = team[0];
+          var stats = team[1];
+          var standings = team[2].team_standings;
+          var name = (nicks) ? this.teamData[info[0].team_key].owner[0] : this.teamData[info[0].team_key].name;
+          var s = [
                 bold((i + 1) + "."),
                 strpad(name, 20),
                 strpad(standings.outcome_totals.wins, 3),
@@ -138,7 +137,8 @@ module.exports = function(get, chanName) {
                 strpad(info[9].number_of_moves, 5),
               ].join(" ");
           message.push(s);
-        }
+          i++;
+        }, this);
         this.log('Read standings to ' + nick);
         this.client.say(chanName, message.join("\n"));
       }
@@ -180,14 +180,14 @@ module.exports = function(get, chanName) {
             var players = data.team[1].roster[0].players,
                 info, position;
             var positions = {};
-            for(var i = 0; i < players.count; i++) {
-              info = players[i].player[0];
-              position = players[i].player[1].selected_position[1].position;
+            yforEach(players, function(p) {
+              var info = p.player[0];
+              var position = p.player[1].selected_position[1].position;
               if(!positions[position]) {
                 positions[position] = [];
               }
               positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
-            }
+            }, this);
             var spots = Object.keys(positions).filter(function(pos){
               return ['BN','IR','IR+'].indexOf(pos) < 0;
             }).map(function(pos){
@@ -210,17 +210,16 @@ module.exports = function(get, chanName) {
         } else {
           var key = team[0];
           get('team/' + key + '/roster', function(data, cmdData, nick) {
-            var players = data.team[1].roster[0].players,
-                info, position;
+            var players = data.team[1].roster[0].players;
             var positions = {};
-            for(var i = 0; i < players.count; i++) {
-              info = players[i].player[0];
-              position = players[i].player[1].selected_position[1].position;
+            yforEach(players, function(p) {
+              var info = p.player[0];
+              var position = p.player[1].selected_position[1].position;
               if(!positions[position]) {
                 positions[position] = [];
               }
               positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
-            }
+            }, this);
             var spots = Object.keys(positions).map(function(pos){
               return pos + ": " + positions[pos].join(", ");
             });
@@ -248,17 +247,16 @@ module.exports = function(get, chanName) {
       url: 'league/nhl.l.99282/scoreboard/matchups',
       fn: function(data, cmdData, nick) {
         var scoreboard = data.league[1].scoreboard[0].matchups,
-            matchup, team1, team2, pts1, pts2, name1, name2,
             results = [];
         var nicks = (cmdData[0] === "n");
-        for(var i = 0; i < scoreboard.count; i++) {
-          matchup = scoreboard[i].matchup[0];
-          team1 = matchup.teams[0].team;
-          team2 = matchup.teams[1].team;
-          pts1 = team1[1].team_points.total;
-          pts2 = team2[1].team_points.total;
-          name1 = (nicks) ? this.teamData[team1[0][0].team_key].owner[0] : this.teamData[team1[0][0].team_key].name;
-          name2 = (nicks) ? this.teamData[team2[0][0].team_key].owner[0] : this.teamData[team2[0][0].team_key].name;
+        yforEach(scoreboard, function(m) {
+          var matchup = m.matchup[0];
+          var team1 = matchup.teams[0].team;
+          var team2 = matchup.teams[1].team;
+          var pts1 = team1[1].team_points.total;
+          var pts2 = team2[1].team_points.total;
+          var name1 = (nicks) ? this.teamData[team1[0][0].team_key].owner[0] : this.teamData[team1[0][0].team_key].name;
+          var name2 = (nicks) ? this.teamData[team2[0][0].team_key].owner[0] : this.teamData[team2[0][0].team_key].name;
           if(pts1 > pts2) {
             name1 = bold(name1);
             pts1 = bold(pts1);
@@ -267,7 +265,7 @@ module.exports = function(get, chanName) {
             pts2 = bold(pts2);
           }
           results.push(name1 + " " + pts1 + " - " + pts2 + " " + name2);
-        }
+        }, this);
         this.client.say(chanName, results.join("\n"));
       }
     },
@@ -357,12 +355,10 @@ module.exports = function(get, chanName) {
           count = Math.min(Math.max(1, count), 5);
         }
         get('league/nhl.l.99282/transactions;count=' + count, function(data, cmdData, nick) {
-          var transactions = data.league[1].transactions,
-              transaction;
-          for(var i = 0; i < transactions.count; i++) {
-            transaction = transactions[i].transaction;
-            this.client.say(chanName, formatTransaction.apply(this, transaction));
-          }
+          var transactions = data.league[1].transactions;
+          yforEach(transactions, function(t) {
+            this.client.say(chanName, formatTransaction.apply(this, t.transaction));
+          }, this);
         });
       }
     },
