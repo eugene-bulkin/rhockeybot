@@ -1,6 +1,18 @@
 var util = require('util');
 var fs = require('fs');
 var figlet = require('figlet');
+var moment = require('moment-timezone');
+
+moment.lang('en', {
+  calendar : {
+    lastDay : '[Yesterday at] LT z',
+    sameDay : '[Today at] LT z',
+    nextDay : '[Tomorrow at] LT z',
+    lastWeek : '[Last] dddd [at] LT z',
+    nextWeek : 'dddd [at] LT z',
+    sameElse : 'L [at] LT z'
+  }
+});
 
 var strpad = function(str, len) {
   str = String(str);
@@ -12,6 +24,58 @@ var strpad = function(str, len) {
 
 var bold = function(str) {
   return "\x02" + str + "\x02";
+};
+
+var yforEach = function(obj, callback, thisArg) {
+  obj.length = obj.count;
+  Array.prototype.forEach.call(obj, callback, thisArg);
+};
+
+var formatTransaction = function(info, players) {
+  players = players.players;
+  var add = [], drop = [], trade = { team1: [], team2: [] };
+  var teamKey = null, t1key = null, t2key = null;
+  if(info.type === 'trade') {
+    t1key = info.trader_team_key;
+    t2key = info.tradee_team_key;
+  }
+  yforEach(players, function(p) {
+    p = p.player;
+    var info = p[0], data = p[1].transaction_data[0];
+    var name = info[2].name.first[0] + ". " + info[2].name.last;
+    var position = info[4].display_position.replace(',', '/');
+    var playerName = name + " (" + position + ")";
+    if(data.type === 'add') {
+      teamKey = data.destination_team_key;
+      add.push(playerName);
+    } else if(data.type === 'drop') {
+      teamKey = data.source_team_key;
+      drop.push(playerName);
+    } else if(data.type === 'trade') {
+      if(data.destination_team_key === t1key) {
+        trade.team1.push(playerName);
+      } else {
+        trade.team2.push(playerName);
+      }
+    }
+  }, this);
+  var str = [];
+  if(['add/drop', 'add', 'drop'].indexOf(info.type) > -1) {
+    str.push(bold("ADD/DROP"));
+    str.push(this.teamData[teamKey].name);
+    if(add.length > 0) {
+      str.push("Added: " + add.join(", "));
+    }
+    if(drop.length > 0) {
+      str.push("Dropped: " + drop.join(", "));
+    }
+  } else if(info.type === 'trade') {
+    str.push(bold("TRADE"));
+    str.push(this.teamData[t1key].name + " received: " + trade.team1.join(", "));
+    str.push(this.teamData[t2key].name + " received: " + trade.team2.join(", "));
+  }
+  str.splice(1, 0, moment(info.timestamp * 1000).tz('America/Chicago').calendar());
+  return str.join(" | ");
 };
 
 module.exports = function(get, chanName) {
@@ -282,6 +346,24 @@ module.exports = function(get, chanName) {
           }
           this.client.say(chanName, results.join(" | "));
         }
+      }
+    },
+    "moves": {
+      fn: function(data, nick) {
+        var count = 5;
+        if(data[0]) {
+          count = parseInt(data[0], 10);
+          // must be between 1 and 5
+          count = Math.min(Math.max(1, count), 5);
+        }
+        get('league/nhl.l.99282/transactions;count=' + count, function(data, cmdData, nick) {
+          var transactions = data.league[1].transactions,
+              transaction;
+          for(var i = 0; i < transactions.count; i++) {
+            transaction = transactions[i].transaction;
+            this.client.say(chanName, formatTransaction.apply(this, transaction));
+          }
+        });
       }
     },
     // silly crap
