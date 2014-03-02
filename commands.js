@@ -354,7 +354,7 @@ module.exports = function(get, chanName) {
           // must be between 1 and 5
           count = Math.min(Math.max(1, count), 5);
         }
-        get('league/nhl.l.99282/transactions;count=' + count, function(data, cmdData, nick) {
+        get('league/nhl.l.99282/transactions;types=add,drop,trade;count=' + count, function(data, cmdData, nick) {
           var transactions = data.league[1].transactions;
           yforEach(transactions, function(t) {
             this.client.say(chanName, formatTransaction.apply(this, t.transaction));
