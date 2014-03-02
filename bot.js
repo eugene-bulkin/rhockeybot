@@ -92,7 +92,6 @@ Bot.prototype.get = function(url, cb, cmdData, nickname) {
   cb = cb.bind(this);
   request.get({ url: 'http://fantasysports.yahooapis.com/fantasy/v2/' + url + '?format=json', oauth: OAUTH, json: true }, function(e, r, body) {
     if(body.error) {
-      this.log(body.error);
       this.log("Token expired. Reauthenticating...");
       request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth: OAUTH}, function (e, r, body) {
         var perm_token = qs.parse(body);
@@ -121,7 +120,7 @@ Bot.prototype.init = function() {
   this.client.addListener('names', this.onJoin.bind(this));
   this.client.addListener('message' + channel, this.onMessage.bind(this));
   this.client.addListener('error', function(message) {
-    this.log("IRC Error: " + message);
+    this.log("IRC Error: " + util.inspect(message, {depth: null}));
   }.bind(this));
 };
 
@@ -218,3 +217,25 @@ Bot.prototype.reload = function() {
 
 var b = new Bot();
 b.init();
+
+// Process handlers
+process.on('exit', function(code) {
+  this.log("Exiting with code: " + code);
+}.bind(b));
+
+process.on('SIGINT', function(code) {
+  this.log("Bot manually killed with SIGINT");
+  process.exit(1);
+}.bind(b));
+
+process.on('SIGTERM', function(code) {
+  this.log("Bot manually killed with SIGTERM");
+  process.exit(1);
+}.bind(b));
+
+process.on('uncaughtException', function(e) {
+  this.log('Caught exception: ' + e);
+  this.client.say(channel, "Sorry, an error occurred while trying to execute that command. It won't work again with those arguments until fixed, so please wait for my owner to fix it and reload my commands.");
+  this.client.say("DoubleAW", "An error occurred, see my logs.");
+  this.client.say("AWAW", "An error occurred, see my logs.");
+}.bind(b));
