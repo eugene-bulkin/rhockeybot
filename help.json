@@ -8,5 +8,8 @@
   "fmatchups": "Alias for !fscores",
   "fmoves": "Displays the moves that have happened in the league. You can specify a count (between 1 and 5) and a team/owner name.",
   "~flahey": "Says a random Jim Lahey quote.",
+  "fsource": "Provides a link to my source code.",
+  "~fpanthers": "Provides a link to a beautiful rendition of the Florida Panthers logo.",
+  "~fdan": "Rudely propositions you.",
   "fhelp": "What do you think that does?"
 }
