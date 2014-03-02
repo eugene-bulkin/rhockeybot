@@ -7,5 +7,6 @@
   "fscores": "Displays the scores for the matchups around the league.",
   "fmatchups": "Alias for !fscores",
   "fmoves": "Displays the moves that have happened in the league. You can specify a count (between 1 and 5) and a team/owner name.",
+  "~flahey": "Says a random Jim Lahey quote.",
   "fhelp": "What do you think that does?"
 }

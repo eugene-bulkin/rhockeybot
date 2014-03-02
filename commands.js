@@ -231,11 +231,17 @@ module.exports = function(get, chanName) {
     },
     "help": {
       fn: function(data, nick) {
+        var cmds = Object.keys(this.help);
+        cmds = cmds.filter(function(cmd) {
+          return cmd[0] !== '~';
+        });
         if(data.length === 0) {
-          this.client.say(chanName, nick + ": " + "The following commands are available: " + Object.keys(this.help).join(", "));
+          this.client.say(chanName, nick + ": " + "The following commands are available: " + cmds.join(", "));
         } else {
           if(this.help[data[0]]) {
             this.client.say(chanName, this.help[data[0]]);
+          } else if(this.help["~" + data[0]]) {
+            this.client.say(chanName, this.help["~" + data[0]]);
           } else {
             this.client.say(chanName, nick + ": " + "There is no help available for '" + data[0] + "'.");
           }
