@@ -1,9 +1,11 @@
 {
   "fstandings": "Displays the standings for the #reddit-hockey fantasy league.",
   "fstarters": "Displays the current starting lineup for the specified team.",
+  "froster": "Displays the full roster for the specified team.",
   "fstats": "Displays the season stats for the specified team.",
   "fmatchup": "Displays the current matchup for the specified team.",
   "fscores": "Displays the scores for the matchups around the league.",
   "fmatchups": "Alias for !fscores",
+  "fmoves": "Displays the moves that have happened in the league. You can specify a count (between 1 and 5) and a team/owner name.",
   "fhelp": "What do you think that does?"
 }
