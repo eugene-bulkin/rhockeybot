@@ -348,13 +348,20 @@ module.exports = function(get, chanName) {
     },
     "moves": {
       fn: function(data, nick) {
-        var count = 5;
-        if(data[0]) {
-          count = parseInt(data[0], 10);
-          // must be between 1 and 5
-          count = Math.min(Math.max(1, count), 5);
+        // get count
+        var isInt = function(s){ return s.match(/^\d+$/); };
+        var notInt = function(s){ return !s.match(/^\d+$/); };
+        var toInt = function(s){ return parseInt(s, 10); };
+        count = data.filter(isInt).map(toInt).pop() || 5;
+        // must be between 1 and 5
+        count = Math.min(Math.max(1, count), 5);
+        var url = 'league/nhl.l.99282/transactions;types=add,drop,trade;count=' + count;
+        // get team data if exists
+        var team = this.getTeam(data.filter(notInt));
+        if(team) {
+          url += ';team_key='+team[0];
         }
-        get('league/nhl.l.99282/transactions;types=add,drop,trade;count=' + count, function(data, cmdData, nick) {
+        get(url, function(data, cmdData, nick) {
           var transactions = data.league[1].transactions;
           yforEach(transactions, function(t) {
             this.client.say(chanName, formatTransaction.apply(this, t.transaction));
