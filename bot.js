@@ -4,6 +4,7 @@ var request = require('request');
 var irc = require("irc");
 var util = require("util");
 var fs = require("fs");
+var moment = require('moment-timezone');
 
 var API = require('./api.json');
 var OAUTH = require('./oauth.json');
@@ -79,19 +80,13 @@ function Bot() {
 Bot.prototype.log = function() {
   var args = Array.prototype.slice.call(arguments);
   console.log.apply(null, args);
-  var now = new Date();
-  var y = now.getFullYear(),
-      m = now.getMonth() + 1,
-      d = now.getDate(),
-      h = now.getHours(),
-      m = now.getMinutes(),
-      s = now.getSeconds(),
-      timestamp = "[" + m + "/" + d + "/" + y + " " + h + ":" + m + ":" + s + "] ";
+  var now = moment().tz('America/Chicago'),
+      timestamp = now.format("MM/DD/YYYY HH:mm:ss z");
   args = args.map(function(a){
-    return timestamp + a;
+    return "[" + timestamp + "] " + a;
   });
   fs.appendFile('./bot.log', Array.prototype.join.call(args, "\n") + "\n");
-}
+};
 
 Bot.prototype.get = function(url, cb, cmdData, nickname) {
   cb = cb.bind(this);

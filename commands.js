@@ -83,6 +83,7 @@ module.exports = function(get, chanName) {
     "reload": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
+          this.log(nick + " tried to reload commands.");
           this.client.say(chanName, "You can't do that.");
           return;
         }
@@ -93,14 +94,16 @@ module.exports = function(get, chanName) {
     "iglet": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
+          this.log(nick + " tried to use figlet.");
           this.client.say(chanName, "You can't do that.");
           return;
         }
         figlet(data.join(" "), {
           font: 'Small',
           horizontalLayout: 'fitted'
-        }, function(err, data) {
-          this.client.say(chanName, data);
+        }, function(err, str) {
+          this.log("Displayed a figlet image for the phrase '" + data.join(" ") + "'");
+          this.client.say(chanName, str);
         }.bind(this));
       }
     },
@@ -150,6 +153,11 @@ module.exports = function(get, chanName) {
         }
         var team = this.getTeam(data);
         if(!team) {
+          if(data.length === 0) {
+            this.log(nick + " tried to get stats without specifying a team/owner");
+          } else {
+            this.log(nick + " tried to get stats for nonexistent team/owner(s) '" + data.join(" ") + "'");
+          }
           this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var key = team[0];
@@ -173,6 +181,11 @@ module.exports = function(get, chanName) {
         }
         var team = this.getTeam(data);
         if(!team) {
+          if(data.length === 0) {
+            this.log(nick + " tried to get starters without specifying a team/owner");
+          } else {
+            this.log(nick + " tried to get starters for nonexistent team/owner(s) '" + data.join(" ") + "'");
+          }
           this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var key = team[0];
@@ -194,6 +207,7 @@ module.exports = function(get, chanName) {
               return pos + ": " + positions[pos].join(", ");
             });
             spots.unshift(team[1].name);
+            this.log("Read starters for " + team[1].name + " to " + nick);
             this.client.say(chanName, spots.join(" | "));
           }, data, nick);
         }
@@ -206,6 +220,11 @@ module.exports = function(get, chanName) {
         }
         var team = this.getTeam(data);
         if(!team) {
+          if(data.length === 0) {
+            this.log(nick + " tried to get a roster without specifying a team/owner");
+          } else {
+            this.log(nick + " tried to get roster for nonexistent team/owner(s) '" + data.join(" ") + "'");
+          }
           this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var key = team[0];
@@ -224,6 +243,7 @@ module.exports = function(get, chanName) {
               return pos + ": " + positions[pos].join(", ");
             });
             spots.unshift(team[1].name);
+            this.log("Read roster for " + team[1].name + " to " + nick);
             this.client.say(chanName, spots.join(" | "));
           }, data, nick);
         }
@@ -236,13 +256,17 @@ module.exports = function(get, chanName) {
           return cmd[0] !== '~';
         });
         if(data.length === 0) {
+          this.log("Read help to " + nick);
           this.client.say(chanName, nick + ": " + "The following commands are available: " + cmds.join(", "));
         } else {
           if(this.help[data[0]]) {
+            this.log("Read help to " + nick + " for !" + data[0]);
             this.client.say(chanName, this.help[data[0]]);
           } else if(this.help["~" + data[0]]) {
+            this.log("Read help to " + nick + " for !" + data[0]);
             this.client.say(chanName, this.help["~" + data[0]]);
           } else {
+            this.log("Told " + nick + " the '" + data[0] + "' command does not exist");
             this.client.say(chanName, nick + ": " + "There is no help available for '" + data[0] + "'.");
           }
         }
@@ -272,6 +296,7 @@ module.exports = function(get, chanName) {
           }
           results.push(name1 + " " + pts1 + " - " + pts2 + " " + name2);
         }, this);
+        this.log("Read scores to " + nick);
         this.client.say(chanName, results.join("\n"));
       }
     },
@@ -290,6 +315,11 @@ module.exports = function(get, chanName) {
         }
         var team = this.getTeam(cmdData);
         if(!team) {
+          if(cmdData.length === 0) {
+            this.log(nick + " tried to get a matchup for without specifying a team/owner");
+          } else {
+            this.log(nick + " tried to get a matchup for nonexistent team/owner(s) '" + cmdData.join(" ") + "'");
+          }
           this.client.say(chanName, nick + ": Sorry, no team or owner with that name exists.");
         } else {
           var scoreboard = data.league[1].scoreboard[0].matchups,
@@ -348,6 +378,7 @@ module.exports = function(get, chanName) {
               continue;
             }
           }
+          this.log("Read matchup between " + team1[0][2].name + " and " + team2[0][2].name + " to " + nick);
           this.client.say(chanName, results.join(" | "));
         }
       }
@@ -367,8 +398,14 @@ module.exports = function(get, chanName) {
         if(team) {
           url += ';team_key='+team[0];
         }
-        get(url, function(data, cmdData, nick) {
+        get(url, function(data, cmdData) {
           var transactions = data.league[1].transactions;
+          var logStr = "Read " + count + " moves";
+          if(team) {
+            logStr += " by " + team[1].name;
+          }
+          logStr += " to " + nick;
+          this.log(logStr);
           yforEach(transactions, function(t) {
             this.client.say(chanName, formatTransaction.apply(this, t.transaction));
           }, this);
@@ -382,7 +419,6 @@ module.exports = function(get, chanName) {
           font: 'Small',
           horizontalLayout: 'fitted'
         }, function(err, data) {
-          this.log(nick + " told murt to fuck off");
           var msgs = [
             "FUCK OFF MURT",
             "http://i.imgur.com/d9pZQS0.jpg",
@@ -399,67 +435,80 @@ module.exports = function(get, chanName) {
           if(!err) {
             msgs.push(data);
           }
+          this.log(nick + " told murt to fuck off");
           this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0]);
         }.bind(this));
       }
     },
     "leafer": {
       fn: function(data, nick) {
+        this.log(nick + " quoted Leafer91");
         this.client.say(chanName, "Man, I really could go for some throat lasagnas right now.");
       }
     },
     "doubleaw": {
       fn: function(data, nick) {
+        this.log(nick + " asked me to talk about how awesome DoubleAW is");
         this.client.say(chanName, "That's the guy that made me. He must be way better than amaninacan.");
       }
     },
     "ruhan": {
       fn: function(data, nick) {
+        this.log(nick + " made fun of ruhan");
         this.client.say(chanName, "No, you can't have the Chicago fourth line.");
       }
     },
     "thero": {
       fn: function(data, nick) {
         if(nick.toLowerCase() === "thero") {
+          this.log(nick + " tried to tell dan to fuck himself but failed");
           this.client.say(chanName, "Go fuck yourself " + nick + ".");
         } else {
+          this.log(nick + " told dan to fuck himself");
           this.client.say(chanName, "Go fuck yourself dan.");
         }
       }
     },
     "dan": {
       fn: function(data, nick) {
+        this.log(nick + " asked for a blowjob");
         this.client.say(chanName, "Hey " + nick + " wanna suck me off?");
       }
     },
     "signal": {
       fn: function(data, nick) {
         var msgs = ["do you have a sister", "what color are your pubes", "would you drink my bathwater", "can you recommend a good porno"];
+        this.log(nick + " quoted SiGNAL");
         this.client.say(chanName, "Hey " + nick + " " + msgs[(Math.random() * msgs.length) | 0] + "?");
       }
     },
     "uck": {
       fn: function(data, nick) {
+        this.log(nick + " swore at me");
         this.client.say(chanName, "Woah, watch your language, asshole.");
       }
     },
     "thirty": {
       fn: function(data, nick) {
+        this.log(nick + " quoted thirty");
         this.client.say(chanName, "The fix will be posted at noon tomorrow on macrumors.com");
       }
     },
     "snackle": {
       fn: function(data, nick) {
+        this.log(nick + " said something about Jasmine's nips");
         this.client.say(chanName, "#JasminesNips2014");
       }
     },
     "panthers": {
       fn: function(data, nick) {
+        this.log(nick + " blessed the channel with the Panthers logo");
         this.client.say(chanName, "http://i.imgur.com/LXDNmml.jpg");
       }
     },
     "source": {
       fn: function(data, nick) {
+        this.log(nick + " asked about my source code");
         this.client.say(chanName, "If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot");
       }
     },
@@ -491,6 +540,7 @@ module.exports = function(get, chanName) {
           "Do you know what a shit rope is, $nick?",
           "The old shit barometer is rising."
         ];
+        this.log(nick + " asked for a Lahey quote");
         this.client.say(chanName, msgs[(Math.random() * msgs.length) | 0].replace("$nick", nick));
       }
     }
