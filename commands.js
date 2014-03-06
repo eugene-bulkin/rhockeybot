@@ -154,24 +154,29 @@ module.exports = function(get, chanName) {
         var team = this.getTeam(data);
         if(!team) {
           if(data.length === 0) {
-            this.log(nick + " tried to get stats without specifying a team/owner");
+            team = this.getTeam([nick]);
+            if(!team) {
+              this.log(nick + " tried to get stats without specifying a team/owner");
+              this.talk(nick + ": Sorry, if you don't have a team you need to specify a team/owner.");
+              return;
+            }
           } else {
             this.log(nick + " tried to get stats for nonexistent team/owner(s) '" + data.join(" ") + "'");
+            this.talk(nick + ": Sorry, no team or owner with that name exists.");
+            return;
           }
-          this.talk(nick + ": Sorry, no team or owner with that name exists.");
-        } else {
-          var key = team[0];
-          get('team/' + key + '/stats', function(data, cmdData, nick) {
-            var tstats = data.team[1].team_stats;
-            var stats = tstats.stats.map(function(s) {
-              return this.statIds[s.stat.stat_id].display_name + " " + s.stat.value;
-            }, this);
-            stats.unshift("PTS " + data.team[1].team_points.total);
-            stats.unshift(bold(team[1].name));
-            this.log("Told " + nick + " the stats for " + team[1].name);
-            this.talk(stats.join(" | "));
-          }.bind(this), data, nick);
         }
+        var key = team[0];
+        get('team/' + key + '/stats', function(data, cmdData, nick) {
+          var tstats = data.team[1].team_stats;
+          var stats = tstats.stats.map(function(s) {
+            return this.statIds[s.stat.stat_id].display_name + " " + s.stat.value;
+          }, this);
+          stats.unshift("PTS " + data.team[1].team_points.total);
+          stats.unshift(bold(team[1].name));
+          this.log("Told " + nick + " the stats for " + team[1].name);
+          this.talk(stats.join(" | "));
+        }.bind(this), data, nick);
       }
     },
     "starters": {
@@ -182,35 +187,40 @@ module.exports = function(get, chanName) {
         var team = this.getTeam(data);
         if(!team) {
           if(data.length === 0) {
-            this.log(nick + " tried to get starters without specifying a team/owner");
+            team = this.getTeam([nick]);
+            if(!team) {
+              this.log(nick + " tried to get starters without specifying a team/owner");
+              this.talk(nick + ": Sorry, if you don't have a team you need to specify a team/owner.");
+              return;
+            }
           } else {
             this.log(nick + " tried to get starters for nonexistent team/owner(s) '" + data.join(" ") + "'");
+            this.talk(nick + ": Sorry, no team or owner with that name exists.");
+            return;
           }
-          this.talk(nick + ": Sorry, no team or owner with that name exists.");
-        } else {
-          var key = team[0];
-          get('team/' + key + '/roster', function(data, cmdData, nick) {
-            var players = data.team[1].roster[0].players,
-                info, position;
-            var positions = {};
-            yforEach(players, function(p) {
-              var info = p.player[0];
-              var position = p.player[1].selected_position[1].position;
-              if(!positions[position]) {
-                positions[position] = [];
-              }
-              positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
-            }, this);
-            var spots = Object.keys(positions).filter(function(pos){
-              return ['BN','IR','IR+'].indexOf(pos) < 0;
-            }).map(function(pos){
-              return pos + ": " + positions[pos].join(", ");
-            });
-            spots.unshift(team[1].name);
-            this.log("Read starters for " + team[1].name + " to " + nick);
-            this.talk(spots.join(" | "));
-          }, data, nick);
         }
+        var key = team[0];
+        get('team/' + key + '/roster', function(data, cmdData, nick) {
+          var players = data.team[1].roster[0].players,
+              info, position;
+          var positions = {};
+          yforEach(players, function(p) {
+            var info = p.player[0];
+            var position = p.player[1].selected_position[1].position;
+            if(!positions[position]) {
+              positions[position] = [];
+            }
+            positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
+          }, this);
+          var spots = Object.keys(positions).filter(function(pos){
+            return ['BN','IR','IR+'].indexOf(pos) < 0;
+          }).map(function(pos){
+            return pos + ": " + positions[pos].join(", ");
+          });
+          spots.unshift(team[1].name);
+          this.log("Read starters for " + team[1].name + " to " + nick);
+          this.talk(spots.join(" | "));
+        }, data, nick);
       }
     },
     "roster": {
@@ -221,32 +231,37 @@ module.exports = function(get, chanName) {
         var team = this.getTeam(data);
         if(!team) {
           if(data.length === 0) {
-            this.log(nick + " tried to get a roster without specifying a team/owner");
+            team = this.getTeam([nick]);
+            if(!team) {
+              this.log(nick + " tried to get a roster without specifying a team/owner");
+              this.talk(nick + ": Sorry, if you don't have a team you need to specify a team/owner.");
+              return;
+            }
           } else {
-            this.log(nick + " tried to get roster for nonexistent team/owner(s) '" + data.join(" ") + "'");
+            this.log(nick + " tried to get a roster for nonexistent team/owner(s) '" + data.join(" ") + "'");
+            this.talk(nick + ": Sorry, no team or owner with that name exists.");
+            return;
           }
-          this.talk(nick + ": Sorry, no team or owner with that name exists.");
-        } else {
-          var key = team[0];
-          get('team/' + key + '/roster', function(data, cmdData, nick) {
-            var players = data.team[1].roster[0].players;
-            var positions = {};
-            yforEach(players, function(p) {
-              var info = p.player[0];
-              var position = p.player[1].selected_position[1].position;
-              if(!positions[position]) {
-                positions[position] = [];
-              }
-              positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
-            }, this);
-            var spots = Object.keys(positions).map(function(pos){
-              return pos + ": " + positions[pos].join(", ");
-            });
-            spots.unshift(team[1].name);
-            this.log("Read roster for " + team[1].name + " to " + nick);
-            this.talk(spots.join(" | "));
-          }, data, nick);
         }
+        var key = team[0];
+        get('team/' + key + '/roster', function(data, cmdData, nick) {
+          var players = data.team[1].roster[0].players;
+          var positions = {};
+          yforEach(players, function(p) {
+            var info = p.player[0];
+            var position = p.player[1].selected_position[1].position;
+            if(!positions[position]) {
+              positions[position] = [];
+            }
+            positions[position].push(info[2].name.first[0] + ". " + info[2].name.last);
+          }, this);
+          var spots = Object.keys(positions).map(function(pos){
+            return pos + ": " + positions[pos].join(", ");
+          });
+          spots.unshift(team[1].name);
+          this.log("Read roster for " + team[1].name + " to " + nick);
+          this.talk(spots.join(" | "));
+        }, data, nick);
       }
     },
     "help": {
@@ -316,71 +331,76 @@ module.exports = function(get, chanName) {
         var team = this.getTeam(cmdData);
         if(!team) {
           if(cmdData.length === 0) {
-            this.log(nick + " tried to get a matchup for without specifying a team/owner");
-          } else {
-            this.log(nick + " tried to get a matchup for nonexistent team/owner(s) '" + cmdData.join(" ") + "'");
-          }
-          this.talk(nick + ": Sorry, no team or owner with that name exists.");
-        } else {
-          var scoreboard = data.league[1].scoreboard[0].matchups,
-              matchup, team1, team2, stats1, stats2,
-              wins1 = [], wins2 = [], ties = [], results;
-          var statDeterminer = function(stat1, i){
-            stat1 = stat1.stat;
-            var stat2 = stats2[i].stat;
-            var val1 = stat1.value, val2 = stat2.value;
-            if(this.statIds[stat1.stat_id].display_name === "SA") {
-              // why is this here?
+            team = this.getTeam([nick]);
+            if(!team) {
+              this.log(nick + " tried to get a matchup for without specifying a team/owner");
+              this.talk(nick + ": Sorry, if you don't have a team you need to specify a team/owner.");
               return;
             }
-            if(this.statIds[stat1.stat_id].display_name === "GAA") {
-              // we want GAA to be lower!
-              if(val1 < val2) {
-                wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
-              } else if(val2 < val1) {
-                wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
-              } else {
-                ties.push([this.statIds[stat1.stat_id].display_name, val1]);
-              }
+          } else {
+            this.log(nick + " tried to get a matchup for nonexistent team/owner(s) '" + data.join(" ") + "'");
+            this.talk(nick + ": Sorry, no team or owner with that name exists.");
+            return;
+          }
+        }
+        var scoreboard = data.league[1].scoreboard[0].matchups,
+            matchup, team1, team2, stats1, stats2,
+            wins1 = [], wins2 = [], ties = [], results;
+        var statDeterminer = function(stat1, i){
+          stat1 = stat1.stat;
+          var stat2 = stats2[i].stat;
+          var val1 = stat1.value, val2 = stat2.value;
+          if(this.statIds[stat1.stat_id].display_name === "SA") {
+            // why is this here?
+            return;
+          }
+          if(this.statIds[stat1.stat_id].display_name === "GAA") {
+            // we want GAA to be lower!
+            if(val1 < val2) {
+              wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
+            } else if(val2 < val1) {
+              wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
             } else {
-              if(val1 > val2) {
-                wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
-              } else if(val2 > val1) {
-                wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
-              } else {
-                ties.push([this.statIds[stat1.stat_id].display_name, val1]);
-              }
+              ties.push([this.statIds[stat1.stat_id].display_name, val1]);
             }
-          };
-          for(var i = 0; i < scoreboard.count; i++) {
-            matchup = scoreboard[i].matchup[0];
-            team1 = matchup.teams[0].team;
-            team2 = matchup.teams[1].team;
-            if(team1[0][0].team_key === team[0] || team2[0][0].team_key === team[0]) {
-              stats1 = team1[1].team_stats.stats;
-              stats2 = team2[1].team_stats.stats;
-              stats1.forEach(statDeterminer, this);
-              var score = [team1[0][2].name + " " + wins1.length, wins2.length + " " + team2[0][2].name];
-              if(wins1.length > wins2.length) {
-                score[0] = bold(score[0]);
-              } else if(wins1.length < wins2.length) {
-                score[1] = bold(score[1]);
-              }
-              results = [
-                wins1.map(wmap).join(", "),
-                score.join(" - "),
-                wins2.map(wmap).join(", "),
-                "Ties",
-                ties.map(tmap).join(", ")
-              ];
-              break;
+          } else {
+            if(val1 > val2) {
+              wins1.push([this.statIds[stat1.stat_id].display_name, val1, val2]);
+            } else if(val2 > val1) {
+              wins2.push([this.statIds[stat1.stat_id].display_name, val2, val1]);
             } else {
-              continue;
+              ties.push([this.statIds[stat1.stat_id].display_name, val1]);
             }
           }
-          this.log("Read matchup between " + team1[0][2].name + " and " + team2[0][2].name + " to " + nick);
-          this.talk(results.join(" | "));
+        };
+        for(var i = 0; i < scoreboard.count; i++) {
+          matchup = scoreboard[i].matchup[0];
+          team1 = matchup.teams[0].team;
+          team2 = matchup.teams[1].team;
+          if(team1[0][0].team_key === team[0] || team2[0][0].team_key === team[0]) {
+            stats1 = team1[1].team_stats.stats;
+            stats2 = team2[1].team_stats.stats;
+            stats1.forEach(statDeterminer, this);
+            var score = [team1[0][2].name + " " + wins1.length, wins2.length + " " + team2[0][2].name];
+            if(wins1.length > wins2.length) {
+              score[0] = bold(score[0]);
+            } else if(wins1.length < wins2.length) {
+              score[1] = bold(score[1]);
+            }
+            results = [
+              wins1.map(wmap).join(", "),
+              score.join(" - "),
+              wins2.map(wmap).join(", "),
+              "Ties",
+              ties.map(tmap).join(", ")
+            ];
+            break;
+          } else {
+            continue;
+          }
         }
+        this.log("Read matchup between " + team1[0][2].name + " and " + team2[0][2].name + " to " + nick);
+        this.talk(results.join(" | "));
       }
     },
     "moves": {
