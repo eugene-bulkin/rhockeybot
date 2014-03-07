@@ -526,6 +526,12 @@ module.exports = function(get, chanName) {
         this.talk("http://i.imgur.com/LXDNmml.jpg");
       }
     },
+    "canucks": {
+      fn: function(data, nick) {
+        this.log(nick + " made fun of the Canucks");
+        this.talk("http://i.imgur.com/Pkqiwcj.jpg");
+      }
+    },
     "source": {
       fn: function(data, nick) {
         this.log(nick + " asked about my source code");
