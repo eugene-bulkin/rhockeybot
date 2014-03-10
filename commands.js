@@ -531,6 +531,12 @@ module.exports = function(get, chanName) {
     "canucks": {
       fn: quote("http://i.imgur.com/Pkqiwcj.jpg", "$nick made fun of the Canucks")
     },
+    "canucks": {
+      fn: function(data, nick) {
+        this.log(nick + " made fun of the Canucks");
+        this.talk("http://i.imgur.com/Pkqiwcj.jpg");
+      }
+    },
     "source": {
       fn: quote("If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot", "$nick asked about my source code")
     },
