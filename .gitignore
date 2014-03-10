@@ -1,4 +1,7 @@
 oauth.json
 api.json
+sftp-config.json
+*.log
+node_modules
 
 *.sublime-*
