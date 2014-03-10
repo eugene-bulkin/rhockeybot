@@ -103,6 +103,24 @@ module.exports = function(get, chanName) {
         this.talk("Done.");
       }
     },
+    "log": {
+      fn: function(data, nick) {
+        if(nick !== "DoubleAW" && nick !== "AWAW") {
+          this.log(nick + " tried to read the log");
+          this.talk("You can't do that.");
+          return;
+        }
+        fs.readFile('./bot.log', function(err, data) {
+          if(err) {
+            this.log('Error reading out log.');
+          } else {
+            var log = data.toString().split("\n").reverse().slice(0, 11).reverse().join("\n");
+            this.client.say(nick, log);
+            this.log("Log sent to " + nick);
+          }
+        }.bind(this));
+      }
+    },
     "iglet": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
