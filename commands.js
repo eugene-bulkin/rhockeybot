@@ -328,8 +328,8 @@ module.exports = function(get, chanName) {
           var matchup = m.matchup[0];
           var team1 = matchup.teams[0].team;
           var team2 = matchup.teams[1].team;
-          var pts1 = team1[1].team_points.total;
-          var pts2 = team2[1].team_points.total;
+          var pts1 = parseInt(team1[1].team_points.total, 10);
+          var pts2 = parseInt(team2[1].team_points.total, 10);
           var name1 = (nicks) ? this.teamData[team1[0][0].team_key].owner[0] : this.teamData[team1[0][0].team_key].name;
           var name2 = (nicks) ? this.teamData[team2[0][0].team_key].owner[0] : this.teamData[team2[0][0].team_key].name;
           if(pts1 > pts2) {
@@ -380,6 +380,13 @@ module.exports = function(get, chanName) {
           stat1 = stat1.stat;
           var stat2 = stats2[i].stat;
           var val1 = stat1.value, val2 = stat2.value;
+          if(["GAA", "SV%"].indexOf(this.statIds[stat1.stat_id].display_name) > -1) {
+            val1 = parseFloat(val1);
+            val2 = parseFloat(val2);
+          } else {
+            val1 = parseInt(val1, 10);
+            val2 = parseInt(val2, 10);
+          }
           if(this.statIds[stat1.stat_id].display_name === "SA") {
             // why is this here?
             return;
