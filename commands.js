@@ -487,7 +487,9 @@ module.exports = function(get, chanName) {
             "http://i.imgur.com/3UsTnbP.jpg",
             "http://i.imgur.com/6d6jNGU.jpg",
             "http://i.imgur.com/Ynd0IVC.jpg",
-            "http://i.imgur.com/5n0ZAcq.jpg"
+            "http://i.imgur.com/5n0ZAcq.jpg",
+            "http://i.imgur.com/OmrlFRZ.jpg",
+            "http://i.imgur.com/awF5j2e.jpg"
           ];
           if(!err) {
             msgs.push(data);
@@ -496,6 +498,9 @@ module.exports = function(get, chanName) {
           this.talk(msgs[(Math.random() * msgs.length) | 0]);
         }.bind(this));
       }
+    },
+    "doc": {
+      fn: quote("http://i.imgur.com/tJaBJjl.gif", "$nick pasted the Doc Rivers face")
     },
     "leafer": {
       fn: quote("Man, I really could go for some throat lasagnas right now.", "$nick quoted Leafer91")
