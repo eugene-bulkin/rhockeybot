@@ -90,7 +90,15 @@ Bot.prototype.log = function() {
 
 Bot.prototype.get = function(url, cb, cmdData, nickname) {
   cb = cb.bind(this);
-  request.get({ url: 'http://fantasysports.yahooapis.com/fantasy/v2/' + url + '?format=json', oauth: OAUTH, json: true }, function(e, r, body) {
+  request.get({ url: 'http://fantasysports.yahooapis.com/fantasy/v2/' + url + '?format=json', oauth: OAUTH, json: true, timeout: 2000 }, function(e, r, body) {
+    if(e) {
+      if(e.code === "ETIMEDOUT") {
+        this.talk("Looks like Yahoo is being terribly slow. Try again later?");
+      } else {
+        this.log(e);
+      }
+      return;
+    }
     if(body.error) {
       this.log("Token expired. Reauthenticating...");
       request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth: OAUTH}, function (e, r, body) {
@@ -231,6 +239,7 @@ process.on('exit', function(code) {
 
 process.on('SIGINT', function(code) {
   this.log("Bot manually killed with SIGINT");
+  this.client.disconnect("Adios");
   process.exit(1);
 }.bind(b));
 
