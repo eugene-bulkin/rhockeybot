@@ -119,6 +119,15 @@ Bot.prototype.get = function(url, cb, cmdData, nickname) {
   }.bind(this));
 };
 
+Bot.prototype.onIRCError = function(message) {
+  if(message.command === 'err_nosuchnick') {
+    // tried to message a user that doesn't exist, which is ignored
+    // because this is not really a bad thing (usually happens on error logging)
+    return;
+  }
+  this.log("Unhandled IRC Error: [" + message.command + "] " + message.args.join(":"));
+};
+
 Bot.prototype.init = function() {
   this.log('Connecting to IRC...');
   this.client = new irc.Client(config.server, config.botName, {
@@ -127,9 +136,7 @@ Bot.prototype.init = function() {
   this.client.addListener('registered', this.onConnect.bind(this));
   this.client.addListener('names', this.onJoin.bind(this));
   this.client.addListener('message' + channel, this.onMessage.bind(this));
-  this.client.addListener('error', function(message) {
-    this.log("IRC Error: " + util.inspect(message, {depth: null}));
-  }.bind(this));
+  this.client.addListener('error', this.onIRCError.bind(this));
 };
 
 Bot.prototype.getTeam = function(data) {
@@ -203,6 +210,7 @@ Bot.prototype.onMessage = function(nick, text, message) {
       }
     } catch(e) {
       this.log("Calling command '" + cmd + "' resulted in the following error: " + e.message);
+      throw e; // so uncaught exception handler sees this and displays the relevant messages
     }
     if(message.nick === "ruhan" && Math.random() < 0.3) {
       this.talk("And no, you can't have the Blackhawks' fourth line.");
@@ -245,6 +253,7 @@ process.on('SIGINT', function(code) {
 
 process.on('SIGTERM', function(code) {
   this.log("Bot manually killed with SIGTERM");
+  this.client.disconnect("Adios");
   process.exit(1);
 }.bind(b));
 
