@@ -78,7 +78,7 @@ module.exports = function(get) {
     "signal": {
       fn: quote(["Hey $nick do you have a sister?", "Hey $nick what color are your pubes?", "Hey $nick would you drink my bathwater?", "Hey $nick can you recommend a good porno?"], "$nick quoted SiGNAL")
     },
-    "uck": {
+    "fuck": {
       fn: quote("Woah, watch your language, asshole.", "$nick swore at me")
     },
     "thirty": {
@@ -118,7 +118,7 @@ module.exports = function(get) {
         "The old shit barometer is rising."
       ], "$nick asked for a Lahey quote")
     },
-    "iglet": {
+    "figlet": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {
           this.log(nick + " tried to use figlet.");

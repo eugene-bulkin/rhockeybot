@@ -77,7 +77,7 @@ var formatTransaction = function(info, players) {
 
 module.exports = function(get) {
   return {
-    "standings": {
+    "fstandings": {
       url: 'league/nhl.l.99282/standings',
       fn: function(data, cmdData, nick) {
         var teams = data.league[1].standings[0].teams;
@@ -116,7 +116,7 @@ module.exports = function(get) {
         this.talk(message.join("\n"));
       }
     },
-    "stats": {
+    "fstats": {
       fn: function(data, nick) {
         if(!this.teamData || !this.statIds) {
           return;
@@ -149,7 +149,7 @@ module.exports = function(get) {
         }.bind(this), data, nick);
       }
     },
-    "starters": {
+    "fstarters": {
       fn: function(data, nick) {
         if(!this.teamData || !this.statIds) {
           return;
@@ -193,7 +193,7 @@ module.exports = function(get) {
         }, data, nick);
       }
     },
-    "roster": {
+    "froster": {
       fn: function(data, nick) {
         if(!this.teamData || !this.statIds) {
           return;
@@ -234,8 +234,8 @@ module.exports = function(get) {
         }, data, nick);
       }
     },
-    "matchups": "scores",
-    "scores": {
+    "fmatchups": "scores",
+    "fscores": {
       url: 'league/nhl.l.99282/scoreboard/matchups',
       fn: function(data, cmdData, nick) {
         var scoreboard = data.league[1].scoreboard[0].matchups,
@@ -262,7 +262,7 @@ module.exports = function(get) {
         this.talk(results.join("\n"));
       }
     },
-    "matchup": {
+    "fmatchup": {
       url: 'league/nhl.l.99282/scoreboard/matchups',
       fn: function(data, cmdData, nick) {
         var wmap = function(w){
@@ -357,7 +357,7 @@ module.exports = function(get) {
         this.talk(results.join(" | "));
       }
     },
-    "moves": {
+    "fmoves": {
       fn: function(data, nick) {
         // get count
         var isInt = function(s){ return s.match(/^\d+$/); };
