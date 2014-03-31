@@ -1,7 +1,8 @@
 var modules = [
   "silly",
   "fantasy",
-  "bot"
+  "bot",
+  "stats"
 ];
 
 module.exports = function(get) {
