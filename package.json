@@ -1,0 +1,19 @@
+{
+  "name": "rhockeybot",
+  "version": "0.8.0",
+  "author": "Nodejitsu <eugene@eugenebulkin.name>",
+  "description": "#reddit-hockey irc bot for the Yahoo! fantasy hockey league",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/eugene-bulkin/rhockeybot.git"
+  },
+  "dependencies" : {
+    "querystring": "*",
+    "prompt": "*",
+    "request": "*",
+    "irc": "*",
+    "moment-timezone": "*",
+    "figlet": "*"
+  },
+  "license": "Apache"
+}
