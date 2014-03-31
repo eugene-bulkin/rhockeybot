@@ -216,7 +216,7 @@ Bot.prototype.reload = function() {
   delete require.cache[Object.keys(require.cache).filter(function(m) {
     return m.match(/commands\.js/);
   })[0]];
-  this.commands = require('./commands.js').bind(this)(this.get.bind(this), channel);
+  this.commands = require('./commands.js').bind(this)(this.get.bind(this));
   this.log(Object.keys(this.commands).length + " commands loaded.");
   fs.readFile('./help.json', function(err, data) {
     if(err) {
