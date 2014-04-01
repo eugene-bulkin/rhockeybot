@@ -234,7 +234,7 @@ module.exports = function(get) {
         }, data, nick);
       }
     },
-    "fmatchups": "scores",
+    "fmatchups": "fscores",
     "fscores": {
       url: 'league/nhl.l.99282/scoreboard/matchups',
       fn: function(data, cmdData, nick) {
