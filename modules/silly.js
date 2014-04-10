@@ -92,7 +92,7 @@ module.exports = function(get) {
     },
     "leafs": {
       fn: quote("4-1", "$nick made fun of the Leafs")
-    }
+    },
     "lahey": {
       fn: quote([
         "Birds of a shitfeather flock together, $nick.",
