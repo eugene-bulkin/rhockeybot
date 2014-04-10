@@ -1,7 +1,7 @@
 {
   "name": "rhockeybot",
-  "version": "0.8.0",
-  "author": "Nodejitsu <eugene@eugenebulkin.name>",
+  "version": "0.8.2",
+  "author": "Eugene Bulkin <eugene@eugenebulkin.name>",
   "description": "#reddit-hockey irc bot for the Yahoo! fantasy hockey league",
   "repository": {
     "type": "git",
