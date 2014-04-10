@@ -2,6 +2,12 @@ var fs = require('fs');
 
 module.exports = function(get) {
   return {
+    "source": {
+      fn: function(data, nick) {
+        this.talk("If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot");
+        this.log("$nick asked about my source code");
+      }
+    },
     "reload": {
       fn: function(data, nick) {
         if(nick !== "DoubleAW" && nick !== "AWAW") {

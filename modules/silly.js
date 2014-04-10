@@ -14,9 +14,6 @@ var quote = function(quotes, log) {
 
 module.exports = function(get) {
   return {
-    "source": {
-      fn: quote("If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot", "$nick asked about my source code")
-    },
     "canucks": {
       fn: quote("http://i.imgur.com/Pkqiwcj.jpg", "$nick made fun of the Canucks")
     },
