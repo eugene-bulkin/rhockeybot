@@ -5,7 +5,7 @@ module.exports = function(get) {
     "source": {
       fn: function(data, nick) {
         this.talk("If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot");
-        this.log("$nick asked about my source code");
+        this.log(nick + " asked about my source code");
       }
     },
     "reload": {
