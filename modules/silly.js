@@ -90,6 +90,9 @@ module.exports = function(get) {
     "blues": {
       fn: quote("http://i.imgur.com/dfRJweG.jpg", "$nick is a Blues fan")
     },
+    "leafs": {
+      fn: quote("4-1", "$nick made fun of the Leafs")
+    }
     "lahey": {
       fn: quote([
         "Birds of a shitfeather flock together, $nick.",
