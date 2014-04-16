@@ -13,7 +13,8 @@
     "request": "*",
     "irc": "*",
     "moment-timezone": "*",
-    "figlet": "*"
+    "figlet": "*",
+    "optimist": "*"
   },
   "license": "Apache"
 }
