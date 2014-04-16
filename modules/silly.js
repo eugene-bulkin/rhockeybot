@@ -91,7 +91,17 @@ module.exports = function(get) {
       fn: quote("http://i.imgur.com/dfRJweG.jpg", "$nick is a Blues fan")
     },
     "leafs": {
-      fn: quote("4-1", "$nick made fun of the Leafs")
+      fn: quote([
+        "4-1",
+        "Good one, Randy!",
+        "Corsi is for little bitches.",
+        "David Clarkson's contract.",
+        "PRAISE BE THE PHIL",
+        "http://games.usvsth3m.com/2048/maple-leaf-excuses-edition/",
+        "We're a puck possession team.",
+        "Colton Orr has pictures of Randy Carlyle naked, breaking a toaster.",
+        "The Marlies are better."
+      ], "$nick made fun of the Leafs")
     },
     "lahey": {
       fn: quote([
