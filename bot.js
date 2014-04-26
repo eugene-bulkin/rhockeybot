@@ -9,6 +9,8 @@ var Q = require("q");
 
 var argv = require('optimist').default('testing', false).alias('testing', 't').argv;
 
+var argv = require('optimist').default('testing', false).alias('testing', 't').argv;
+
 var API = require('./api.json');
 var OAUTH = require('./oauth.json');
 
