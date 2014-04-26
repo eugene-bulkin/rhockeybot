@@ -427,6 +427,7 @@ module.exports = function(get) {
         });
       }
     },
+    "fancystats": "statsfancy",
     "statsfancy": {
       fn: function(data, nick) {
         getPlayerName(data).then(function(name) {
