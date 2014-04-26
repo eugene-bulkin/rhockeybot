@@ -14,9 +14,6 @@ var quote = function(quotes, log) {
 
 module.exports = function(get) {
   return {
-    "source": {
-      fn: quote("If you have suggestions/feature requests or just want to see the source, it's at http://github.com/eugene-bulkin/rhockeybot", "$nick asked about my source code")
-    },
     "canucks": {
       fn: quote("http://i.imgur.com/Pkqiwcj.jpg", "$nick made fun of the Canucks")
     },
@@ -39,7 +36,8 @@ module.exports = function(get) {
             "http://i.imgur.com/Ynd0IVC.jpg",
             "http://i.imgur.com/5n0ZAcq.jpg",
             "http://i.imgur.com/OmrlFRZ.jpg",
-            "http://i.imgur.com/awF5j2e.jpg"
+            "http://i.imgur.com/awF5j2e.jpg",
+            "http://i.imgur.com/s7ifcXl.jpg"
           ];
           if(!err) {
             msgs.push(data);
@@ -72,11 +70,14 @@ module.exports = function(get) {
         }
       }
     },
+    "lightning": {
+      fn: quote("http://i.imgur.com/Niif460.png", "$nick made fun of the Lightning getting swept")
+    },
     "dan": {
       fn: quote("Hey $nick wanna suck me off?", "$nick asked for a blowjob")
     },
     "signal": {
-      fn: quote(["Hey $nick do you have a sister?", "Hey $nick what color are your pubes?", "Hey $nick would you drink my bathwater?", "Hey $nick can you recommend a good porno?"], "$nick quoted SiGNAL")
+      fn: quote(["Hey $nick do you have a sister?", "Hey $nick what color are your pubes?", "Hey $nick would you drink my bathwater?", "Hey $nick can you recommend a good porno?","Hey $nick can you get me an ebook from the future?"], "$nick quoted SiGNAL")
     },
     "fuck": {
       fn: quote("Woah, watch your language, asshole.", "$nick swore at me")
@@ -89,6 +90,22 @@ module.exports = function(get) {
     },
     "panthers": {
       fn: quote("http://i.imgur.com/LXDNmml.jpg", "$nick blessed the channel with the Panthers logo")
+    },
+    "blues": {
+      fn: quote("http://i.imgur.com/dfRJweG.jpg", "$nick is a Blues fan")
+    },
+    "leafs": {
+      fn: quote([
+        "4-1",
+        "Good one, Randy!",
+        "Corsi is for little bitches.",
+        "David Clarkson's contract.",
+        "PRAISE BE THE PHIL",
+        "http://games.usvsth3m.com/2048/maple-leaf-excuses-edition/",
+        "We're a puck possession team.",
+        "Colton Orr has pictures of Randy Carlyle naked, breaking a toaster.",
+        "The Marlies are better."
+      ], "$nick made fun of the Leafs")
     },
     "lahey": {
       fn: quote([
