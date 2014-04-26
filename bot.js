@@ -5,12 +5,15 @@ var irc = require("irc");
 var util = require("util");
 var fs = require("fs");
 var moment = require('moment-timezone');
+var Q = require("q");
+
+var argv = require('optimist').default('testing', false).alias('testing', 't').argv;
 
 var API = require('./api.json');
 var OAUTH = require('./oauth.json');
 
 // enable this to keep it out of the main channel
-var TESTING = process.argv.slice(2).indexOf('t') > -1;
+var TESTING = argv.testing;
 
 var channel = (TESTING) ? "#doubleaw" : "#reddit-hockey";
 
@@ -39,13 +42,19 @@ var initOAuth = function() {
       token: access_token.oauth_token,
       token_secret: access_token.oauth_token_secret
     };
-    this.log("Visit " + access_token.xoauth_request_auth_url);
+    console.log("Visit " + access_token.xoauth_request_auth_url + " and click agree, then enter the code you see below.");
+    prompt.message = prompt.delimiter = "";
     prompt.start();
-    prompt.get(['verifier'], function(err, res) {
+    prompt.get({
+      properties: {
+        verifier: {
+          description: "Please enter the verifier code:"
+        }
+      }
+    }, function(err, res) {
       oauth.verifier = res.verifier;
       request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth:oauth}, function (e, r, body) {
         var perm_token = qs.parse(body);
-        this.log(perm_token);
         OAUTH = {
           consumer_key: API.key,
           consumer_secret: API.secret,
@@ -53,7 +62,7 @@ var initOAuth = function() {
           token_secret: perm_token.oauth_token_secret,
           session_handle: perm_token.oauth_session_handle
         };
-        this.log("Authenticated.");
+        console.log("Authenticated. Please restart the bot without the auth command.");
         fs.writeFileSync('./oauth.json', JSON.stringify(OAUTH));
       });
     });
@@ -75,7 +84,14 @@ function Bot() {
   this.statIds = null;
   this.commands = require('./commands').bind(this)(this.get.bind(this), channel);
   this.log(Object.keys(this.commands).length + " commands loaded.");
+
+  this.loadPlayerCache();
+  this.log(Object.keys(this.playerCache).length + " player files loaded.");
 }
+
+Bot.prototype.loadPlayerCache = function() {
+  this.playerCache = {};
+};
 
 Bot.prototype.log = function() {
   var args = Array.prototype.slice.call(arguments);
@@ -100,19 +116,23 @@ Bot.prototype.get = function(url, cb, cmdData, nickname) {
       return;
     }
     if(body.error) {
-      this.log("Token expired. Reauthenticating...");
-      request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth: OAUTH}, function (e, r, body) {
-        var perm_token = qs.parse(body);
-        OAUTH = {
-          consumer_key: API.key,
-          consumer_secret: API.secret,
-          token: perm_token.oauth_token,
-          token_secret: perm_token.oauth_token_secret,
-          session_handle: perm_token.oauth_session_handle
-        };
-        fs.writeFileSync('./oauth.json', JSON.stringify(OAUTH));
-        this.get(url, cb, cmdData, nickname);
-      }.bind(this));
+      if(body.error.description.indexOf('token_expired') > -1) {
+        this.log("Token expired. Reauthenticating...");
+        request.post({url: 'https://api.login.yahoo.com/oauth/v2/get_token', oauth: OAUTH}, function (e, r, body) {
+          var perm_token = qs.parse(body);
+          OAUTH = {
+            consumer_key: API.key,
+            consumer_secret: API.secret,
+            token: perm_token.oauth_token,
+            token_secret: perm_token.oauth_token_secret,
+            session_handle: perm_token.oauth_session_handle
+          };
+          fs.writeFileSync('./oauth.json', JSON.stringify(OAUTH));
+          this.get(url, cb, cmdData, nickname);
+        }.bind(this));
+      } else {
+        this.log("Yahoo! error: " + body.error.description);
+      }
     } else {
       cb.bind(this)(body.fantasy_content, cmdData, nickname || "?");
     }
@@ -237,29 +257,33 @@ Bot.prototype.reload = function() {
   }.bind(this));
 };
 
-var b = new Bot();
-b.init();
+if(argv._.indexOf('auth') > -1) {
+  initOAuth();
+} else {
+  var b = new Bot();
+  b.init();
 
-// Process handlers
-process.on('exit', function(code) {
-  this.log("Exiting with code: " + code);
-}.bind(b));
+  // Process handlers
+  process.on('exit', function(code) {
+    this.log("Exiting with code: " + code);
+  }.bind(b));
 
-process.on('SIGINT', function(code) {
-  this.log("Bot manually killed with SIGINT");
-  this.client.disconnect("Adios");
-  process.exit(1);
-}.bind(b));
+  process.on('SIGINT', function(code) {
+    this.log("Bot manually killed with SIGINT");
+    this.client.disconnect("Adios");
+    process.exit(1);
+  }.bind(b));
 
-process.on('SIGTERM', function(code) {
-  this.log("Bot manually killed with SIGTERM");
-  this.client.disconnect("Adios");
-  process.exit(1);
-}.bind(b));
+  process.on('SIGTERM', function(code) {
+    this.log("Bot manually killed with SIGTERM");
+    this.client.disconnect("Adios");
+    process.exit(1);
+  }.bind(b));
 
-process.on('uncaughtException', function(e) {
-  this.log('Caught exception: ' + e);
-  this.talk("Sorry, an error occurred while trying to execute that command. It won't work again with those arguments until fixed, so please wait for my owner to fix it and reload my commands.");
-  this.client.say("DoubleAW", "An error occurred, see my logs.");
-  this.client.say("AWAW", "An error occurred, see my logs.");
-}.bind(b));
+  process.on('uncaughtException', function(e) {
+    this.log('Caught exception: ' + e);
+    this.talk("Sorry, an error occurred while trying to execute that command. It won't work again with those arguments until fixed, so please wait for my owner to fix it and reload my commands.");
+    this.client.say("DoubleAW", "An error occurred, see my logs.");
+    this.client.say("AWAW", "An error occurred, see my logs.");
+  }.bind(b));
+}
