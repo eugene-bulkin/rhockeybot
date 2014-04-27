@@ -214,7 +214,7 @@ Bot.prototype.onMessage = function(nick, text, message) {
     return;
   }
   var msg = message.args[1].split(" ");
-  if(!msg[0].match(/^\!/)) {
+  if(!msg[0].match(/^\,/)) {
     return;
   }
   var cmd = msg[0].replace(/^\,/,'').toLowerCase();
