@@ -5,6 +5,7 @@ var cheerio = require('cheerio');
 var tb = require('thenby');
 var request = require('request');
 var qs = require('querystring');
+var humanize = require('humanize');
 
 var API = require('../api.json');
 var OAUTH = require('../oauth.json');
@@ -19,7 +20,8 @@ var NAMES_CHANGED = false;
 var KEYS = {
   yahoo: ["gp", "g", "a", "p", "pm", "pim", "hit", "blk", "fw", "fl", null, "ppg", "ppa", "shg", "sha", "gwg", "sog", null],
   yahooG: ["gp", "gs", "min", "w", "l", "otl", "ega", "ga", "gaa", "sa", "sv", null, "so"],
-  es: ["gp", "toi", null, null, "gfp", "gfp_rel", null, null, "cfp", "cfp_rel", null, null, "ffp", "ffp_rel", null, null, "sfp", "sfp_rel", "shp", "svp", "pdo"]
+  es: ["gp", "toi", null, null, "gfp", "gfp_rel", null, null, "cfp", "cfp_rel", null, null, "ffp", "ffp_rel", null, null, "sfp", "sfp_rel", "shp", "svp", "pdo"],
+  esSummary: ["toi", "gf", "ga", "cf", "ca", null, "ff", "fa", null, "sf", "sa", null, null, null]
 };
 
 var getQ = function(url, nickname) {
@@ -309,29 +311,6 @@ var getYahooRegularStats = function(name) {
   });
 };
 
-// http://stackoverflow.com/a/15810597/28429
-var ordinal = function(num) {
-  var numStr = num.toString(),
-      last = numStr.slice(-1),
-      len = numStr.length,
-      ord = '';
-  switch (last) {
-    case '1':
-      ord = numStr.slice(-2) === '11' ? 'th' : 'st';
-      break;
-    case '2':
-      ord = numStr.slice(-2) === '12' ? 'th' : 'nd';
-      break;
-    case '3':
-      ord = numStr.slice(-2) === '13' ? 'th' : 'rd';
-      break;
-    default:
-      ord = 'th';
-      break;
-  }
-  return num.toString() + ord;
-};
-
 var toPercent = function(number) {
   number *= 1000;
   number |= 0;
@@ -342,7 +321,7 @@ var formatDraft = function(draft) {
   if(!draft) {
     return 'Undrafted';
   }
-  return 'Drafted ' + draft.year + ' by the ' + draft.team + ', ' + ordinal(draft.round) + ' round (' + ordinal(draft.overall) + ' pick)';
+  return 'Drafted ' + draft.year + ' by the ' + draft.team + ', ' + humanize.ordinal(draft.round) + ' round (' + humanize.ordinal(draft.overall) + ' pick)';
 };
 
 var yahooRegularHeaders = ["height", "weight", "shoots", "birthday", "birthplace", "draft"];
@@ -357,6 +336,47 @@ var updateNames = function(bot) {
     NAMES_CHANGED = false;
   });
 };
+
+var abbrHash = {
+  "ANA":"Ducks",
+  "SJS":"Sharks",
+  "LAK":"Kings",
+  "PHX":"Coyotes",
+  "VAN":"Canucks",
+  "CGY":"Flames",
+  "EDM":"Oilers",
+  "COL":"Avalanche",
+  "STL":"Blues",
+  "CHI":"Blackhawks",
+  "MIN":"Wild",
+  "DAL":"Stars",
+  "NSH":"Predators",
+  "WPG":"Jets",
+  "BOS":"Bruins",
+  "TBL":"Lightning",
+  "MTL":"Canadiens",
+  "DET":"Red Wings",
+  "OTT":"Senators",
+  "TOR":"Maple Leafs",
+  "FLA":"Panthers",
+  "BUF":"Sabres",
+  "PIT":"Penguins",
+  "NYR":"Rangers",
+  "PHI":"Flyers",
+  "CBJ":"Blue Jackets",
+  "WSH":"Capitals",
+  "NJD":"Devils",
+  "CAR":"Hurricanes",
+  "NYI":"Islanders"
+};
+
+var reverseAbbr = function(teamName) {
+  return Object.keys(abbrHash).filter(function(key) {
+    return abbrHash[key] == teamName;
+  })[0];
+};
+
+var int = function(num) { return parseInt(num, 10); };
 
 module.exports = function(get) {
   return {
@@ -467,6 +487,65 @@ module.exports = function(get) {
         }.bind(this)).fail(function(e) {
           console.log(e);
         });
+      }
+    },
+    "fancysummary": "summaryfancy",
+    "summaryfancy": {
+      fn: function(data, nick) {
+        if(abbrHash[data.join(' ').toUpperCase()]) {
+          chosenTeam = abbrHash[data.join(' ').toUpperCase()].toLowerCase();
+        } else {
+          chosenTeam = data.join(' ').toLowerCase();
+        }
+        HTTP.read('http://www.extraskater.com/').then(function(b) {
+          var $ = cheerio.load(b.toString());
+          var gamesToday = $('h3').filter(function() { return $(this).text().indexOf('Games for') > -1; }).next('div.row');
+          var chosen = Array.prototype.filter.call(gamesToday.find('table'), function(table) {
+            var teams = $(table).find('td:not(.game-status):not(.number-right)');
+            teams = Array.prototype.map.call(teams, function(td) { return $(td).text().toLowerCase(); });
+            return teams.indexOf(chosenTeam) > -1;
+          })[0];
+          if(chosen) {
+            var uri = 'http://www.extraskater.com' + $(chosen).attr('onclick').replace("location.href='",'').replace("'",'');
+            return HTTP.read(uri);
+          } else {
+            throw new Error();
+          }
+        }).done(function(b) {
+          var $ = cheerio.load(b.toString());
+          
+          var titleParse = $('h2').text().match(/^(\d{4}-\d{2}-\d{2}): (.+) (\d+) at (.+) (\d+) - (\d+:\d+) (\d\w+)/);
+          var gameInfo = reverseAbbr(titleParse[2]) + " " + titleParse[3] + " " + reverseAbbr(titleParse[4]) + " " + titleParse[5] + " (" + titleParse[6] + " " + titleParse[7] + ")";
+          
+          var stats = {};
+          Array.prototype.forEach.call($($('tr.team-game-stats-all')[0]).children('td.number-right'), function(td, i) {
+            if(KEYS.esSummary[i]) {
+              stats[KEYS.esSummary[i]] = $(td).text();
+            }
+          });
+          
+          var pdoA = humanize.numberFormat(100 * (int(stats.gf) / int(stats.sf) + 1 - int(stats.ga) / int(stats.sa)), 1);
+          var pdoH = humanize.numberFormat(100 * (int(stats.ga) / int(stats.sa) + 1 - int(stats.gf) / int(stats.sf)), 1);
+          var shA = humanize.numberFormat(100 * int(stats.gf) / int(stats.sf), 1);
+          var shH = humanize.numberFormat(100 * int(stats.ga) / int(stats.sa), 1);
+          var svA = humanize.numberFormat(100 * (1 - int(stats.ga) / int(stats.sa)), 1);
+          var svH = humanize.numberFormat(100 * (1 - int(stats.gf) / int(stats.sf)), 1);
+
+          var summary = [
+            gameInfo,
+            "SOG " + [stats.sf, stats.sa].join('-'),
+            "Corsi " + [stats.cf, stats.ca].join('-'),
+            "Fenwick " + [stats.ff, stats.fa].join('-'),
+            "Sh% " + [shA, shH].join('-'),
+            "Sv% " + [svA, svH].join('-'),
+            "PDO " + [pdoA, pdoH].join('-')
+          ];
+          this.log(nick + " asked for the fancy game summary for '" + data.join(' ') + "'.");
+          this.talk(summary.join(" | "));
+        }.bind(this), function() {
+          this.log(nick + " asked for the fancy game summary for '" + data.join(' ') + "', but that was not found.");
+          this.talk("No game found.");
+        }.bind(this));
       }
     }
   };

@@ -18,7 +18,8 @@
     "q-io": "*",
     "q": "*",
     "cheerio": "*",
-    "thenby": "*"
+    "thenby": "*",
+    "humanize": "*"
   },
   "license": "Apache"
 }
