@@ -447,6 +447,7 @@ module.exports = function(get) {
         });
       }
     },
+    "astats": "statsfancy",
     "fancystats": "statsfancy",
     "statsfancy": {
       fn: function(data, nick) {
@@ -489,6 +490,7 @@ module.exports = function(get) {
         });
       }
     },
+    "asummary": "summaryfancy",
     "fancysummary": "summaryfancy",
     "summaryfancy": {
       fn: function(data, nick) {
