@@ -217,7 +217,7 @@ Bot.prototype.onMessage = function(nick, text, message) {
   if(!msg[0].match(/^\!/)) {
     return;
   }
-  var cmd = msg[0].replace(/^\!/,'').toLowerCase();
+  var cmd = msg[0].replace(/^\,/,'').toLowerCase();
   if(this.commands.hasOwnProperty(cmd)) {
     var c = this.commands[cmd];
     // check if alias
