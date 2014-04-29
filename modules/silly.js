@@ -85,6 +85,9 @@ module.exports = function(get) {
     "thirty": {
       fn: quote("The fix will be posted at noon tomorrow on macrumors.com", "$nick quoted thirty")
     },
+    "shorks": {
+      fn: quote("http://i.imgur.com/kiA9HsX.jpg", "$nick pointed out that shorks gonna shork")
+    },
     "snackle": {
       fn: quote("#JasminesNips2014", "$nick said something about Jasmine's nips")
     },
