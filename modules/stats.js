@@ -176,10 +176,22 @@ var getPlayerIds = function(name) {
       throw e;
     }
     });
-    return Q.all([yahoo, extraSkater]).spread(function(y, es) {
+    var capGeek = HTTP.read('http://capgeek.com/search/?search_criteria=' + name.replace(' ', '+')).then(function(b) {
+      // didn't redirect, so... not sure what to do
+      throw new Error(b);
+    }, function(e) {
+      if(e.response.status === 302) {
+        return e.response.headers.location.replace('/player/', '');
+      } else {
+      // if it was some other error, throw an error to be dealt with down the line.
+      throw e;
+    }
+    });
+    return Q.all([yahoo, extraSkater, capGeek]).spread(function(y, es, cg) {
       var json = {
         yahoo: y,
         extraSkater: es,
+        capGeek: cg,
         updated: new Date()
       };
       return FS.write('./stats/' + id + '/ids.json', JSON.stringify(json)).then(function () {
@@ -189,6 +201,36 @@ var getPlayerIds = function(name) {
   }, function(e) {
     return FS.read(e.message).then(function(data) {
       console.log('IDs were cached');
+      return JSON.parse(data);
+    });
+  });
+};
+
+var getCapInfo = function(name) {
+  var id = name.toLowerCase().replace(' ', '_');
+  return statsPathExists(id).then(function() {
+    return FS.exists('./stats/' + id + '/cap.json');
+  }, function() {
+    return FS.exists('./stats/' + id + '/cap.json');
+  }).then(function(exists) {
+    if(exists) {
+      throw new Error('./stats/' + id + '/cap.json');
+    }
+    return name;
+  }).then(function(name) {
+    return getPlayerIds(name).then(function(ids) {
+      return HTTP.read('http://capgeek.com/player/' + ids.capGeek);
+    }).then(function(b) {
+      var $ = cheerio.load(b.toString());
+      var result = {};
+      return result;
+      return FS.write('./stats/' + id + '/cap.json', JSON.stringify(result)).then(function () {
+        return result;
+      });
+    });
+  }, function(e) {
+    return FS.read(e.message).then(function(data) {
+      console.log('ES Stats were cached');
       return JSON.parse(data);
     });
   });
@@ -382,7 +424,7 @@ module.exports = function(get) {
   return {
     "stats": {
       fn: function(data, nick) {
-        getPlayerName(data).then(getYahooRegularStats).done(function(json) {
+        return getPlayerName(data).then(getYahooRegularStats).then(function(json) {
           var curSeason = Object.keys(json.seasons).pop();
           var profile = json.profile;
           var stats = json.seasons[curSeason];
@@ -451,7 +493,7 @@ module.exports = function(get) {
     "fancystats": "statsfancy",
     "statsfancy": {
       fn: function(data, nick) {
-        getPlayerName(data).then(function(name) {
+        return getPlayerName(data).then(function(name) {
           return Q.all([getYahooRegularStats(name), getExtraSkaterStats(name)]);
         }).spread(function(yahoo, es) {
           var curSeason = Object.keys(yahoo.seasons).pop();
@@ -499,7 +541,7 @@ module.exports = function(get) {
         } else {
           chosenTeam = data.join(' ').toLowerCase();
         }
-        HTTP.read('http://www.extraskater.com/').then(function(b) {
+        return HTTP.read('http://www.extraskater.com/').then(function(b) {
           var $ = cheerio.load(b.toString());
           var gamesToday = $('h3').filter(function() { return $(this).text().indexOf('Games for') > -1; }).next('div.row');
           var chosen = Array.prototype.filter.call(gamesToday.find('table'), function(table) {
@@ -513,14 +555,15 @@ module.exports = function(get) {
           } else {
             throw new Error();
           }
-        }).done(function(b) {
+        }).then(function(b) {
           var $ = cheerio.load(b.toString());
           
           var titleParse = $('h2').text().match(/^(\d{4}-\d{2}-\d{2}): (.+) (\d+) at (.+) (\d+) - (\d+:\d+) (\d\w+)/);
           var gameInfo = reverseAbbr(titleParse[2]) + " " + titleParse[3] + " " + reverseAbbr(titleParse[4]) + " " + titleParse[5] + " (" + titleParse[6] + " " + titleParse[7] + ")";
           
           var stats = {};
-          Array.prototype.forEach.call($($('tr.team-game-stats-all')[0]).children('td.number-right'), function(td, i) {
+          var idx = Array.prototype.map.call($('tr.team-game-stats-all').find('td a'), function(el, i){ return [$(el).text(), i] }).filter(function(pair) { return pair[0].indexOf(titleParse[2]) > -1; })[0][1];
+          Array.prototype.forEach.call($($('tr.team-game-stats-all')[idx]).children('td.number-right'), function(td, i) {
             if(KEYS.esSummary[i]) {
               stats[KEYS.esSummary[i]] = $(td).text();
             }
@@ -548,6 +591,49 @@ module.exports = function(get) {
           this.log(nick + " asked for the fancy game summary for '" + data.join(' ') + "', but that was not found.");
           this.talk("No game found.");
         }.bind(this));
+      }
+    },
+    "cap": {
+      fn: function(data, nick) {
+        return getPlayerName(data).then(function(name) {
+          return Q.all([getYahooRegularStats(name), getCapInfo(name)]);
+        }).spread(function(yahoo, cg) {
+          console.log(yahoo.profile, cg);
+          return;
+          var curSeason = Object.keys(yahoo.seasons).pop();
+          var profile = yahoo.profile;
+          var stats = es[curSeason];
+
+          var profileLine = [
+            profile.name,
+            profile.team + " " + profile.position + " " + profile.number,
+            profile.height.replace('-', "'") + '" ' + profile.weight + 'lbs',
+            formatDraft(profile.draft),
+            'Born on ' + profile.birthday + ' in ' + profile.birthplace
+          ];
+
+          var statsLine = [
+            'GP ' + stats.gp,
+            'TOI ' + stats.toi,
+            'GF% ' + stats.gfp,
+            'GF% rel ' + stats.gfp_rel,
+            'CF% ' + stats.cfp,
+            'CF% rel ' + stats.cfp_rel,
+            'FF% ' + stats.ffp,
+            'FF% rel ' + stats.ffp_rel,
+            'SF% ' + stats.sfp,
+            'SF% rel ' + stats.sfp_rel,
+            'Sh% ' + stats.shp,
+            'Sv% ' + stats.svp,
+            'PDO ' + stats.pdo
+          ];
+
+          this.log(nick + ' asked for the regular season fancy stats for ' + profile.name);
+          this.talk(profileLine.join(' | ') + "\n" + statsLine.join(' | '));
+          updateNames(this);
+        }.bind(this)).fail(function(e) {
+          console.log(e);
+        });
       }
     }
   };
