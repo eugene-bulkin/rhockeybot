@@ -224,19 +224,20 @@ Bot.prototype.onMessage = function(nick, text, message) {
     if(typeof c === typeof "") {
       c = this.commands[c];
     }
-    try {
+    Q.fcall(function() {
       if(c.url) {
-        this.get(c.url, c.fn.bind(this), msg.slice(1), message.nick);
+        return this.get(c.url, c.fn.bind(this), msg.slice(1), message.nick);
       } else {
-        c.fn.bind(this)(msg.slice(1), message.nick);
+        return c.fn.bind(this)(msg.slice(1), message.nick);
       }
-    } catch(e) {
+    }.bind(this)).fail(function() {
       this.log("Calling command '" + cmd + "' resulted in the following error: " + e.message);
       throw e; // so uncaught exception handler sees this and displays the relevant messages
-    }
-    if(message.nick === "ruhan" && Math.random() < 0.3) {
-      this.talk("And no, you can't have the Blackhawks' fourth line.");
-    }
+    }.bind(this)).done(function() {
+      if(message.nick === "ruhan" && Math.random() < 0.993) {
+        this.talk("And no, you can't have the Blackhawks' fourth line.");
+      } 
+    }.bind(this));
   } else {
     this.log(message.nick + " tried to use unrecognized command '" + cmd + "'.");
   }
