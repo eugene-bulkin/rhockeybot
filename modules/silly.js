@@ -37,7 +37,10 @@ module.exports = function(get) {
             "http://i.imgur.com/5n0ZAcq.jpg",
             "http://i.imgur.com/OmrlFRZ.jpg",
             "http://i.imgur.com/awF5j2e.jpg",
-            "http://i.imgur.com/s7ifcXl.jpg"
+            "http://i.imgur.com/s7ifcXl.jpg",
+            "http://i.imgur.com/KajSoNH.jpg", // http://f.nn.lv/n5/mz/9w/murt-latvia-dark.jpeg
+            "http://i.imgur.com/Op0a0uk.jpg", // http://f.nn.lv/n6/11/nr/IMG_20140522_194225.jpg
+            "http://i.imgur.com/83PkDI7.jpg"  // http://f.nn.lv/n6/11/pi/IMG_20140521_230843.jpg
           ];
           if(!err) {
             msgs.push(data);
